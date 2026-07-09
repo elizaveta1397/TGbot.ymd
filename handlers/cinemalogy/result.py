@@ -22,6 +22,12 @@ async def result(callback: CallbackQuery):
 
     telegram_id = callback.from_user.id
 
+    # Удаляем сообщение с гифкой подтверждения
+    try:
+        await callback.message.delete()
+    except Exception:
+        pass
+
     frame = get_parameter(
         telegram_id,
         "cinemalogy_current_frame"
@@ -61,9 +67,24 @@ async def result(callback: CallbackQuery):
         frame
     )
 
+    # Получаем изображение выбранного кадра
+    from services.cinemalogy.materials import get_material
+
+    image_row = get_material(
+        f"cinemalogy_frame_{int(frame):02d}_image"
+    )
+
+    # Текст результата — если есть отдельный текст
+    text_row = get_material(
+        f"cinemalogy_frame_{int(frame):02d}_result_text"
+    )
+
+    result_text = text_row["text"] if text_row else "Ваш выбор сохранён."
+
+    # Отправляем результат
     await callback.message.answer_photo(
-        photo="[RESULT_IMAGE]",
-        caption="[RESULT_TEXT]",
+        photo=image_row["telegram_file_id"],
+        caption=result_text,
         reply_markup=result_keyboard()
     )
 
