@@ -5,10 +5,16 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
-def result_keyboard():
+def result_keyboard(article_button_text: str, article_url: str):
 
     return InlineKeyboardMarkup(
         inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=article_button_text,
+                    url=article_url
+                )
+            ],
             [
                 InlineKeyboardButton(
                     text="🎟 Приглашение на показ",

@@ -52,12 +52,10 @@ async def choose_frame(callback: CallbackQuery):
         "admin_mode"
     )
 
+    # Если выбор уже есть — сразу показываем результат
     if choice and admin_mode != "on":
-        await callback.message.answer(
-            "[STEP_5_RESULT]"
-        )
-        await callback.answer()
-        return
+        from handlers.cinemalogy.result import result
+        return await result(callback)
 
     # Первый кадр
     set_parameter(

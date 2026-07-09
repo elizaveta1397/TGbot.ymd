@@ -81,11 +81,27 @@ async def result(callback: CallbackQuery):
 
     result_text = text_row["text"] if text_row else "Ваш выбор сохранён."
 
+    # Получаем текст кнопки статьи
+    article_button_row = get_material(
+        f"cinemalogy_frame_{int(frame):02d}_article_button"
+    )
+
+    # Получаем URL статьи
+    article_url_row = get_material(
+        f"cinemalogy_frame_{int(frame):02d}_article_url"
+    )
+
+    article_button_text = article_button_row["text"]
+    article_url = article_url_row["url"]
+
     # Отправляем результат
     await callback.message.answer_photo(
         photo=image_row["telegram_file_id"],
         caption=result_text,
-        reply_markup=result_keyboard()
+        reply_markup=result_keyboard(
+            article_button_text,
+            article_url
+        )
     )
 
     await callback.answer()
