@@ -16,7 +16,7 @@ def frame_keyboard():
                     callback_data="frame_prev"
                 ),
                 InlineKeyboardButton(
-                    text="Выбрать этот кадр",
+                    text="Выбрать",
                     callback_data="frame_select"
                 ),
                 InlineKeyboardButton(
@@ -26,7 +26,7 @@ def frame_keyboard():
             ],
             [
                 InlineKeyboardButton(
-                    text="🏠 Главное меню",
+                    text="Назад",
                     callback_data="cinemalogy_home"
                 )
             ]

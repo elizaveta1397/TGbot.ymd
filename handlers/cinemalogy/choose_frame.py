@@ -12,6 +12,7 @@ from services.user_parameters import (
 )
 
 from keyboards.cinemalogy.frames import frame_keyboard
+from handlers.cinemalogy.start import start_cinemalogy
 
 router = Router()
 
@@ -73,6 +74,16 @@ async def choose_frame(callback: CallbackQuery):
         photo=image["telegram_file_id"],
         caption=CAPTION_TEXT,
         reply_markup=frame_keyboard()
+    )
+
+    await callback.answer()
+
+@router.callback_query(F.data == "cinemalogy_home")
+async def cinemalogy_home(callback: CallbackQuery):
+
+    await start_cinemalogy(
+        message=callback.message,
+        source="home_button"
     )
 
     await callback.answer()
