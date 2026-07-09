@@ -1,4 +1,3 @@
-
 """
 Шаг 3. Выбор кадра.
 """
@@ -15,6 +14,12 @@ from services.user_parameters import (
 from keyboards.cinemalogy.frames import frame_keyboard
 
 router = Router()
+
+
+CAPTION_TEXT = (
+    "Внимательно посмотрите на кадры из фильмов. Не оценивайте их критически\n\n"
+    "Выберите тот, который первым вызвал наиболее сильный эмоциональный отклик"
+)
 
 
 @router.callback_query(F.data == "cinemalogy_choose_frame")
@@ -63,14 +68,10 @@ async def choose_frame(callback: CallbackQuery):
     from services.cinemalogy.materials import get_material
 
     image = get_material("cinemalogy_frame_01_image")
-    text = get_material("cinemalogy_frame_01_text")
-    
-    print(image)
-    print(text)
 
     await callback.message.answer_photo(
         photo=image["telegram_file_id"],
-        caption=text["text"],
+        caption=CAPTION_TEXT,
         reply_markup=frame_keyboard()
     )
 

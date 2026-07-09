@@ -3,7 +3,7 @@
 """
 
 from aiogram import Router
-from aiogram.types import CallbackQuery, InputMediaPhoto
+from aiogram.types import CallbackQuery, InputMediaPhoto, InlineKeyboardMarkup
 
 from services.user_parameters import (
     get_parameter,
@@ -13,6 +13,12 @@ from services.user_parameters import (
 from services.cinemalogy.materials import get_material
 
 router = Router()
+
+
+CAPTION_TEXT = (
+    "Внимательно посмотрите на кадры из фильмов. Не оценивайте их критически\n\n"
+    "Выберите тот, который первым вызвал наиболее сильный эмоциональный отклик"
+)
 
 
 @router.callback_query(
@@ -56,16 +62,16 @@ async def frame_navigation(callback: CallbackQuery):
             f"cinemalogy_frame_{current_frame:02d}_image"
         )
 
-        text = get_material(
-            f"cinemalogy_frame_{current_frame:02d}_text"
+        new_keyboard = InlineKeyboardMarkup(
+            inline_keyboard=callback.message.reply_markup.inline_keyboard
         )
 
         await callback.message.edit_media(
             InputMediaPhoto(
                 media=image["telegram_file_id"],
-                caption=text["text"] if text else ""
+                caption=CAPTION_TEXT
             ),
-            reply_markup=callback.message.reply_markup
+            reply_markup=new_keyboard
         )
 
         await callback.answer()
@@ -91,16 +97,16 @@ async def frame_navigation(callback: CallbackQuery):
             f"cinemalogy_frame_{current_frame:02d}_image"
         )
 
-        text = get_material(
-            f"cinemalogy_frame_{current_frame:02d}_text"
+        new_keyboard = InlineKeyboardMarkup(
+            inline_keyboard=callback.message.reply_markup.inline_keyboard
         )
 
         await callback.message.edit_media(
             InputMediaPhoto(
                 media=image["telegram_file_id"],
-                caption=text["text"] if text else ""
+                caption=CAPTION_TEXT
             ),
-            reply_markup=callback.message.reply_markup
+            reply_markup=new_keyboard
         )
 
         await callback.answer()
@@ -111,4 +117,3 @@ async def frame_navigation(callback: CallbackQuery):
     #
     if callback.data == "frame_select":
         await callback.answer()
-
