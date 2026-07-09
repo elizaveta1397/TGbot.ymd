@@ -3,7 +3,7 @@
 """
 
 from aiogram import Router
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, InputMediaPhoto
 
 from services.user_parameters import (
     get_parameter,
@@ -37,12 +37,14 @@ async def frame_navigation(callback: CallbackQuery):
     current_frame = int(current_frame)
 
     #
-    # Следующий кадр
+    # Следующий кадр (вперёд)
     #
     if callback.data == "frame_next":
 
         if current_frame < 12:
             current_frame += 1
+        else:
+            current_frame = 1   # кольцевая навигация
 
         set_parameter(
             telegram_id,
@@ -58,9 +60,11 @@ async def frame_navigation(callback: CallbackQuery):
             f"cinemalogy_frame_{current_frame:02d}_text"
         )
 
-        await callback.message.answer_photo(
-            photo=image["telegram_file_id"],
-            caption=text["text"] if text else "",
+        await callback.message.edit_media(
+            InputMediaPhoto(
+                media=image["telegram_file_id"],
+                caption=text["text"] if text else ""
+            ),
             reply_markup=callback.message.reply_markup
         )
 
@@ -68,12 +72,14 @@ async def frame_navigation(callback: CallbackQuery):
         return
 
     #
-    # Предыдущий кадр
+    # Предыдущий кадр (назад)
     #
     if callback.data == "frame_prev":
 
         if current_frame > 1:
             current_frame -= 1
+        else:
+            current_frame = 12  # кольцевая навигация
 
         set_parameter(
             telegram_id,
@@ -89,9 +95,11 @@ async def frame_navigation(callback: CallbackQuery):
             f"cinemalogy_frame_{current_frame:02d}_text"
         )
 
-        await callback.message.answer_photo(
-            photo=image["telegram_file_id"],
-            caption=text["text"] if text else "",
+        await callback.message.edit_media(
+            InputMediaPhoto(
+                media=image["telegram_file_id"],
+                caption=text["text"] if text else ""
+            ),
             reply_markup=callback.message.reply_markup
         )
 
@@ -103,3 +111,4 @@ async def frame_navigation(callback: CallbackQuery):
     #
     if callback.data == "frame_select":
         await callback.answer()
+
