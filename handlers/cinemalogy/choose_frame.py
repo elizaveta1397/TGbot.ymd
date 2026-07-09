@@ -78,8 +78,15 @@ async def choose_frame(callback: CallbackQuery):
 
     await callback.answer()
 
+
 @router.callback_query(F.data == "cinemalogy_home")
 async def cinemalogy_home(callback: CallbackQuery):
+
+    # Удаляем сообщение с кадром
+    try:
+        await callback.message.delete()
+    except Exception:
+        pass
 
     await start_cinemalogy(
         message=callback.message,

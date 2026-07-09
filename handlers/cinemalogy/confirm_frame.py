@@ -40,6 +40,12 @@ async def frame_select(callback: CallbackQuery):
 
     from services.cinemalogy.materials import get_material
 
+    # Удаляем сообщение с кадром
+    try:
+        await callback.message.delete()
+    except Exception:
+        pass
+
     # Гифка подтверждения
     gif = get_material(
         f"cinemalogy_frame_{int(current_frame):02d}_confirm_gif"
