@@ -1,0 +1,66 @@
+"""
+Шаг 7.
+Экран выбранного тарифа.
+"""
+
+from aiogram import Router, F
+from aiogram.types import CallbackQuery
+
+from keyboards.cinemalogy.tariffs import tariff_keyboard
+
+from services.database import add_event
+from services.user_parameters import set_parameter
+
+router = Router()
+
+
+@router.callback_query(
+    F.data.in_(
+        [
+            "tariff_mini",
+            "tariff_midi",
+            "tariff_maxi"
+        ]
+    )
+)
+async def tariff(callback: CallbackQuery):
+
+    telegram_id = callback.from_user.id
+
+    tariff = callback.data.replace(
+        "tariff_",
+        ""
+    )
+
+    # Запоминаем выбранный тариф
+    set_parameter(
+        telegram_id,
+        "cinemalogy_tariff",
+        tariff
+    )
+
+    # Запоминаем текущий шаг
+    set_parameter(
+        telegram_id,
+        "current_step",
+        "tariff"
+    )
+
+    # Аналитика
+    add_event(
+        telegram_id,
+        "cinemalogy_tariff_selected",
+        tariff
+    )
+
+    # Пока заглушки
+    image = "[TARIFF_IMAGE]"
+    text = f"[TARIFF_{tariff.upper()}_TEXT]"
+
+    await callback.message.answer_photo(
+        photo=image,
+        caption=text,
+        reply_markup=tariff_keyboard()
+    )
+
+    await callback.answer()

@@ -1,34 +1,49 @@
 from aiogram import Router
-from aiogram.filters import CommandStart
+from aiogram.filters import CommandStart, CommandObject
 from aiogram.types import Message
 
 from services.database import (
     get_user,
     add_user,
-    update_last_activity
+    update_last_activity,
+    add_event
 )
 
 from keyboards.main_menu import main_menu
-
-from services.database import add_event
-
 from services.admin_notifications import notify_new_user
 
 router = Router()
 
 
 @router.message(CommandStart())
-async def start_handler(message: Message):
+async def start_handler(
+    message: Message,
+    command: CommandObject
+):
 
     telegram_user = message.from_user
 
-    parts = message.text.split(maxsplit=1)
+    # deep link (/start payload)
+    source = command.args
 
-    source = None
+    print(f"DEEP LINK = {source}")
 
-    if len(parts) > 1:
-        source = parts[1]
+    # ----------------------------
+    # CINEMALOGY ROUTING
+    # ----------------------------
+    if source and source.startswith("cinemalogy"):
 
+        from handlers.cinemalogy.start import start_cinemalogy
+
+        await start_cinemalogy(
+            message=message,
+            source=source
+        )
+        return
+
+    # ----------------------------
+    # USER LOGIC
+    # ----------------------------
     user = get_user(telegram_user.id)
 
     if user is None:
@@ -49,17 +64,28 @@ async def start_handler(message: Message):
 
     else:
 
-        update_last_activity(
-            telegram_user.id
-        )
+        update_last_activity(telegram_user.id)
 
         add_event(
-        telegram_user.id,
-        "start",
-        source
+            telegram_user.id,
+            "start",
+            source
+        )
+
+    # ----------------------------
+    # DEFAULT RESPONSE
+    # ----------------------------
+    await message.answer(
+        "Добро пожаловать",
+        reply_markup=main_menu
     )
 
-    await message.answer(
-    "Добро пожаловать",
-    reply_markup=main_menu
-)
+from aiogram import F
+
+@router.message(F.photo)
+async def get_file_id(message: Message):
+    await message.answer(message.photo[-1].file_id)
+
+@router.message(F.animation)
+async def get_gif_id(message: Message):
+    await message.answer(message.animation.file_id)

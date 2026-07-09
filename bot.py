@@ -1,5 +1,5 @@
 from services.database import create_tables
-
+from handlers.cinemalogy import router as cinemalogy_router
 from handlers.about import router as about_router
 
 from services.database import (
@@ -26,6 +26,8 @@ dp.message.middleware(
 
 dp.include_router(start_router)
 dp.include_router(about_router)
+dp.include_router(cinemalogy_router)
+
 
 async def main():
     create_tables()

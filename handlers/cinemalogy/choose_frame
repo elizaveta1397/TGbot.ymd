@@ -1,0 +1,6 @@
+@router.callback_query(F.data == "cinemalogy_choose_frame")
+async def choose_frame(callback: CallbackQuery):
+
+    print("CALLBACK:", callback.data)
+
+    telegram_id = callback.from_user.id

@@ -154,3 +154,129 @@ def cleanup_old_events():
 
     conn.commit()
     conn.close()
+
+# ==========================================
+# Работа с параметрами пользователя
+# ==========================================
+
+def get_user_parameter(
+    telegram_id,
+    parameter_name
+):
+    """
+    Получить значение параметра пользователя.
+    Если параметр отсутствует, вернуть None.
+    """
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT parameter_value
+        FROM user_parameters
+        WHERE telegram_id = ?
+        AND parameter_name = ?
+    """, (
+        telegram_id,
+        parameter_name
+    ))
+
+    row = cursor.fetchone()
+
+    conn.close()
+
+    if row:
+        return row[0]
+
+    return None
+
+
+def set_user_parameter(
+    telegram_id,
+    parameter_name,
+    parameter_value
+):
+    """
+    Создать новый параметр или обновить существующий.
+    """
+
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO user_parameters (
+            telegram_id,
+            parameter_name,
+            parameter_value,
+            updated_at
+        )
+        VALUES (?, ?, ?, ?)
+
+        ON CONFLICT(telegram_id, parameter_name)
+        DO UPDATE SET
+
+            parameter_value = excluded.parameter_value,
+
+            updated_at = excluded.updated_at
+    """, (
+        telegram_id,
+        parameter_name,
+        parameter_value,
+        now
+    ))
+
+    conn.commit()
+    conn.close()
+
+
+def delete_user_parameter(
+    telegram_id,
+    parameter_name
+):
+    """
+    Удалить параметр пользователя.
+    """
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        DELETE FROM user_parameters
+        WHERE telegram_id = ?
+        AND parameter_name = ?
+    """, (
+        telegram_id,
+        parameter_name
+    ))
+
+    conn.commit()
+    conn.close()
+
+
+def get_all_user_parameters(
+    telegram_id
+):
+    """
+    Получить все параметры пользователя.
+    """
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT
+            parameter_name,
+            parameter_value
+        FROM user_parameters
+        WHERE telegram_id = ?
+    """, (
+        telegram_id,
+    ))
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    return rows
