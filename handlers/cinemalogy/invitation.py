@@ -29,9 +29,17 @@ async def invitation(callback: CallbackQuery):
         "cinemalogy_invitation"
     )
 
+    # --- единственное добавление: загрузка материалов из таблицы ---
+    from services.cinemalogy.materials import get_material
+
+    image_row = get_material("cinemalogy_invitation_image")
+    text_row = get_material("cinemalogy_invitation_text")
+
+    # ---------------------------------------------------------------
+
     await callback.message.answer_photo(
-        photo="[INVITATION_IMAGE]",
-        caption="[INVITATION_TEXT]",
+        photo=image_row["telegram_file_id"],
+        caption=text_row["text"],
         reply_markup=invitation_keyboard()
     )
 
