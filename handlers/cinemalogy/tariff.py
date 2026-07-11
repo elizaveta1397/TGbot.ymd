@@ -53,13 +53,21 @@ async def tariff(callback: CallbackQuery):
         tariff
     )
 
-    # Пока заглушки
-    image = "[TARIFF_IMAGE]"
-    text = f"[TARIFF_{tariff.upper()}_TEXT]"
+    # --- ХАРДКОД ТЕКСТОВ ТАРИФОВ ---
+    texts = {
+        "mini": "Описание тарифа мини.",
+        "midi": "Описание тарифа мини.",   # ты прислала два одинаковых текста
+        "maxi": "Описание тарифа максимум."
+    }
+
+    # --- ХАРДКОД КАРТИНОК (оставляем как есть, таблица не трогается) ---
+    from services.cinemalogy.materials import get_material
+    image_row = get_material(f"ticket_{tariff}_image")
+    # --------------------------------------
 
     await callback.message.answer_photo(
-        photo=image,
-        caption=text,
+        photo=image_row["telegram_file_id"],
+        caption=texts[tariff],
         reply_markup=tariff_keyboard()
     )
 
