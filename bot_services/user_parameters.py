@@ -5,7 +5,7 @@
 Используется всеми процессами бота.
 """
 
-from services.database import (
+from bot_services.database import (
     get_user_parameter,
     set_user_parameter,
     delete_user_parameter

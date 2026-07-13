@@ -5,8 +5,8 @@
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
 
-from services.database import add_event
-from services.user_parameters import (
+from bot_services.database import add_event
+from bot_services.user_parameters import (
     get_parameter,
     set_parameter
 )
@@ -64,7 +64,7 @@ async def choose_frame(callback: CallbackQuery):
         "1"
     )
 
-    from services.cinemalogy.materials import get_material
+    from bot_services.cinemalogy.materials import get_material
 
     image = get_material("cinemalogy_frame_01_image")
 

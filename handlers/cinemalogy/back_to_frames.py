@@ -1,4 +1,4 @@
-from services.cinemalogy.materials import get_material
+from bot_services.cinemalogy.materials import get_material
 
 async def back_to_frames(callback, telegram_id):
     current_frame = get_parameter(

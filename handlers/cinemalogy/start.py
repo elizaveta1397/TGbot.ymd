@@ -7,9 +7,9 @@ from aiogram.types import Message
 
 from keyboards.cinemalogy.start import start_keyboard
 
-from services.database import add_event
-from services.user_parameters import set_parameter
-from services.cinemalogy.materials import get_material as get_cinemalogy_material  # ← добавлено
+from bot_services.database import add_event
+from bot_services.user_parameters import set_parameter
+from bot_services.cinemalogy.materials import get_material as get_cinemalogy_material  # ← добавлено
 
 # Роутер нужен, чтобы __init__.py мог его импортировать
 router = Router()

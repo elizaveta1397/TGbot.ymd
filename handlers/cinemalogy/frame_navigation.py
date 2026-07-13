@@ -5,12 +5,12 @@
 from aiogram import Router
 from aiogram.types import CallbackQuery, InputMediaPhoto, InlineKeyboardMarkup
 
-from services.user_parameters import (
+from bot_services.user_parameters import (
     get_parameter,
     set_parameter
 )
 
-from services.cinemalogy.materials import get_material
+from bot_services.cinemalogy.materials import get_material
 
 router = Router()
 

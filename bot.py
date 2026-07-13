@@ -1,8 +1,10 @@
-from services.database import create_tables
+from bot_services.database import create_tables
 from handlers.cinemalogy import router as cinemalogy_router
 from handlers.about import router as about_router
+from handlers.admin import router as admin_router
+from handlers.unknown import router as unknown_router
 
-from services.database import (
+from bot_services.database import (
     create_tables,
     cleanup_old_events
 )
@@ -27,7 +29,9 @@ dp.message.middleware(
 dp.include_router(start_router)
 dp.include_router(about_router)
 dp.include_router(cinemalogy_router)
+dp.include_router(admin_router)
 
+dp.include_router(unknown_router)
 
 async def main():
     create_tables()

@@ -1,11 +1,11 @@
 from aiogram import BaseMiddleware
 
-from services.database import (
+from bot_services.database import (
     get_user,
     update_last_activity
 )
 
-from services.database import add_event
+from bot_services.database import add_event
 
 class ActivityMiddleware(BaseMiddleware):
 

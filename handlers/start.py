@@ -2,7 +2,7 @@ from aiogram import Router
 from aiogram.filters import CommandStart, CommandObject
 from aiogram.types import Message
 
-from services.database import (
+from bot_services.database import (
     get_user,
     add_user,
     update_last_activity,
@@ -10,7 +10,7 @@ from services.database import (
 )
 
 from keyboards.main_menu import main_menu
-from services.admin_notifications import notify_new_user
+from bot_services.admin_notifications import notify_new_user
 
 router = Router()
 

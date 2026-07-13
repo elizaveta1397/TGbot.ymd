@@ -1,6 +1,6 @@
 from aiogram import Router
 from aiogram.types import Message
-from services.database import add_event
+from bot_services.database import add_event
 
 router = Router()
 

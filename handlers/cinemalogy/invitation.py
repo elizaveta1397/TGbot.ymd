@@ -7,8 +7,8 @@ from aiogram.types import CallbackQuery
 
 from keyboards.cinemalogy.invitation import invitation_keyboard
 
-from services.database import add_event
-from services.user_parameters import set_parameter
+from bot_services.database import add_event
+from bot_services.user_parameters import set_parameter
 
 router = Router()
 
@@ -30,7 +30,7 @@ async def invitation(callback: CallbackQuery):
     )
 
     # --- единственное добавление: загрузка материалов из таблицы ---
-    from services.cinemalogy.materials import get_material
+    from bot_services.cinemalogy.materials import get_material
 
     image_row = get_material("cinemalogy_invitation_image")
     text_row = get_material("cinemalogy_invitation_text")

@@ -7,9 +7,9 @@ from aiogram.types import CallbackQuery
 
 from keyboards.cinemalogy.payment import payment_keyboard
 
-from services.database import add_event
-from services.user_parameters import set_parameter, get_parameter
-from services.admin_notifications import notify_admin_payment_start
+from bot_services.database import add_event
+from bot_services.user_parameters import set_parameter, get_parameter
+from bot_services.admin_notifications import notify_admin_payment_start
 
 router = Router()
 

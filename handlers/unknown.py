@@ -3,5 +3,9 @@ from aiogram.types import Message
 
 router = Router()
 
+
+@router.message()
 async def process_unknown(message: Message):
-    await message.answer("Команда не распознана. Попробуйте ещё раз.")
+    await message.answer(
+        "Я не понял сообщение. Используйте кнопки меню или нажмите /start."
+    )

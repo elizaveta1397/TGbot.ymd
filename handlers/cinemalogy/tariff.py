@@ -8,8 +8,8 @@ from aiogram.types import CallbackQuery
 
 from keyboards.cinemalogy.tariffs import tariff_keyboard
 
-from services.database import add_event
-from services.user_parameters import set_parameter
+from bot_services.database import add_event
+from bot_services.user_parameters import set_parameter
 
 router = Router()
 
@@ -61,7 +61,7 @@ async def tariff(callback: CallbackQuery):
     }
 
     # --- ХАРДКОД КАРТИНОК (оставляем как есть, таблица не трогается) ---
-    from services.cinemalogy.materials import get_material
+    from bot_services.cinemalogy.materials import get_material
     image_row = get_material(f"ticket_{tariff}_image")
     # --------------------------------------
 
