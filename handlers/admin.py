@@ -1,67 +1,37 @@
-"""
-Глобальная админ‑панель бота.
-Доступна по слову "админ" и вариациям.
-"""
-
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
+import sqlite3
 
-# ← используем ТОЛЬКО реальные функции
 from bot_services.database import (
     get_user_parameter,
     set_user_parameter,
     delete_user_parameter
 )
 
-import sqlite3
-from handlers.unknown import process_unknown
+# --- Роутер для сообщений (НЕ ПОДКЛЮЧАЕМ В bot.py) ---
+router_admin_messages = Router()
 
-router = Router()
+# --- Роутер для callback-кнопок (ПОДКЛЮЧАЕМ В bot.py) ---
+router_admin_callbacks = Router()
 
 ADMIN_ID = 250428280
 
-# Все варианты слова "админ"
-ADMIN_WORDS = (
-    "адм", "админ", "адмен", "адмын", "админн",
-    "adm", "admin", "admi", "admn", "adming",
-    "Адм", "Админ", "Адмен", "Адмын", "Админн",
-    "Adm", "Admin", "Admi", "Admn", "Adming"
-)
 
-
-def is_admin_command(text: str) -> bool:
-    if not text:
-        return False
-    t = text.strip()
-    tl = t.lower()
-    return any(tl.startswith(w.lower()) for w in ADMIN_WORDS)
-
-
-# -------------------------------
-# Вход в админ‑панель
-# -------------------------------
-@router.message(F.text)
+# ============================
+# Вход в админ — вызывается через unknown
+# ============================
 async def admin_entry(message: Message):
-
-    if not is_admin_command(message.text):
-        return
-
-    telegram_id = message.from_user.id
-
-    if telegram_id != ADMIN_ID:
-        await process_unknown(message)
+    if message.from_user.id != ADMIN_ID:
+        await message.answer("Вы не админ.")
         return
 
     await show_admin_menu(message)
 
 
-# -------------------------------
-# Показать меню админа
-# -------------------------------
-async def show_admin_menu(message: Message):
-
-    telegram_id = message.from_user.id
-
+# ============================
+# Сборка текста и клавиатуры
+# ============================
+async def build_admin_menu_text_and_keyboard(telegram_id: int):
     my_status = get_user_parameter(telegram_id, "admin_mode")
     my_status = "on" if my_status == "on" else "off"
 
@@ -94,17 +64,25 @@ async def show_admin_menu(message: Message):
     )
 
     from keyboards.admin import admin_keyboard
-    await message.answer(text, reply_markup=admin_keyboard())
+    return text, admin_keyboard()
 
 
-# -------------------------------
+# ============================
+# Показать меню админа
+# ============================
+async def show_admin_menu(message: Message):
+    text, keyboard = await build_admin_menu_text_and_keyboard(message.from_user.id)
+    await message.answer(text, reply_markup=keyboard)
+
+
+# ============================
 # Переключить режим администратора
-# -------------------------------
-@router.callback_query(F.data == "admin_toggle")
+# ============================
+@router_admin_callbacks.callback_query(F.data == "admin_toggle")
 async def admin_toggle(callback: CallbackQuery):
 
     if callback.from_user.id != ADMIN_ID:
-        await process_unknown(callback.message)
+        await callback.answer("Вы не админ.")
         return
 
     telegram_id = callback.from_user.id
@@ -116,51 +94,51 @@ async def admin_toggle(callback: CallbackQuery):
         set_user_parameter(telegram_id, "admin_mode", "on")
 
     await callback.answer("Статус обновлён")
-    await show_admin_menu(callback.message)
+
+    # обновляем меню через edit_text — НЕ улетает в unknown
+    text, keyboard = await build_admin_menu_text_and_keyboard(telegram_id)
+    await callback.message.edit_text(text, reply_markup=keyboard)
 
 
-# -------------------------------
+# ============================
 # Дать доступ
-# -------------------------------
-@router.callback_query(F.data == "admin_grant")
+# ============================
+@router_admin_callbacks.callback_query(F.data == "admin_grant")
 async def admin_grant(callback: CallbackQuery):
 
     if callback.from_user.id != ADMIN_ID:
-        await process_unknown(callback.message)
+        await callback.answer("Вы не админ.")
         return
 
+    await callback.answer()
     await callback.message.answer("Введите username пользователя, которому дать доступ:")
     set_user_parameter(callback.from_user.id, "admin_waiting_action", "grant")
-    await callback.answer()
 
 
-# -------------------------------
+# ============================
 # Забрать доступ
-# -------------------------------
-@router.callback_query(F.data == "admin_revoke")
+# ============================
+@router_admin_callbacks.callback_query(F.data == "admin_revoke")
 async def admin_revoke(callback: CallbackQuery):
 
     if callback.from_user.id != ADMIN_ID:
-        await process_unknown(callback.message)
+        await callback.answer("Вы не админ.")
         return
 
+    await callback.answer()
     await callback.message.answer("Введите username пользователя, у которого забрать доступ:")
     set_user_parameter(callback.from_user.id, "admin_waiting_action", "revoke")
-    await callback.answer()
 
 
-# -------------------------------
+# ============================
 # Обработка ввода username
-# -------------------------------
-@router.message(F.text)
+# ============================
+@router_admin_messages.message(F.text & (F.from_user.id == ADMIN_ID))
 async def admin_username_input(message: Message):
-
-    if message.from_user.id != ADMIN_ID:
-        return
 
     action = get_user_parameter(message.from_user.id, "admin_waiting_action")
     if action not in ("grant", "revoke"):
-        return
+        return  # unknown поймает
 
     username = message.text.replace("@", "").strip()
 
