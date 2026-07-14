@@ -11,20 +11,26 @@ def invitation_keyboard():
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="🎟 Мини",
+                    text="🎟 Билет Mini",
                     callback_data="tariff_mini"
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text="🎟 Миди",
+                    text="🎟 Билет Midi",
                     callback_data="tariff_midi"
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text="🎟 Макси",
+                    text="🎟 Билет Maxi",
                     callback_data="tariff_maxi"
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🫂 Партнеры показа",
+                    callback_data="cinemalogy_partners"
                 )
             ],
             [

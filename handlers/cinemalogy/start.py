@@ -9,9 +9,8 @@ from keyboards.cinemalogy.start import start_keyboard
 
 from bot_services.database import add_event
 from bot_services.user_parameters import set_parameter
-from bot_services.cinemalogy.materials import get_material as get_cinemalogy_material  # ← добавлено
+from bot_services.cinemalogy.materials import get_material as get_cinemalogy_material
 
-# Роутер нужен, чтобы __init__.py мог его импортировать
 router = Router()
 
 
@@ -39,21 +38,22 @@ async def start_cinemalogy(
         source
     )
 
-    # Приветственный текст
+    # Текст — БЕЗ жирного, БЕЗ курсива, БЕЗ HTML
     start_text = (
         "Добро пожаловать в мир синемалогии!\n\n"
-        "Я – Гончарова Елизавета, EMDR-терапевт, интегративный психолог "
-        "проведу вас в тайны вашего бессознательного через культовые фильмы."
+        "Я – Гончарова Елизавета, EMDR‑терапевт, интегративный психолог "
+        "проведу вас в тайны вашего бессознательного через культовые фильмы\n\n"
+        "Я подготовила для вас интерактив, чтобы размяться перед кинопоказом\n\n"
+        "Нажмите на кнопку «Выбрать кадр», чтобы начать"
     )
 
-    # Получаем file_id из таблицы materials_cinemalogy
+    # Получаем file_id стартовой картинки
     start_image_row = get_cinemalogy_material("cinemalogy_start_image")
-    start_image = start_image_row["telegram_file_id"]  # ← исправлено
+    start_image = start_image_row["telegram_file_id"]
 
-    # Отправляем фото + текст + кнопки одним сообщением
+    # Отправляем фото + текст + кнопки ОДНИМ сообщением
     await message.answer_photo(
         photo=start_image,
         caption=start_text,
         reply_markup=start_keyboard()
     )
-

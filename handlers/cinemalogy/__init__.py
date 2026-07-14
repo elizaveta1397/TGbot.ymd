@@ -13,8 +13,11 @@ from .tariff import router as tariff_router
 from .payment import router as payment_router
 from .payment_done import router as payment_done_router
 from .frame_navigation import router as frame_navigation_router
+from .partners import router as partners_router
+
 
 router = Router()
+
 
 router.include_router(start_router)
 router.include_router(choose_frame_router)
@@ -25,3 +28,4 @@ router.include_router(tariff_router)
 router.include_router(payment_router)
 router.include_router(payment_done_router)   # ← ВАЖНО
 router.include_router(frame_navigation_router)
+router.include_router(partners_router)

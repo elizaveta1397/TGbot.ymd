@@ -1,22 +1,20 @@
-from aiogram.types import ReplyKeyboardMarkup
-from aiogram.types import KeyboardButton
-
-# ===== Главное меню =====
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 main_menu = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="📖 Обо мне")
+            KeyboardButton(text="Обо мне")
         ],
         [
-            KeyboardButton(text="📝 Записаться")
+            KeyboardButton(text="Записаться на консультацию")
         ],
         [
-            KeyboardButton(text="🎁 Бесплатный материал")
+            KeyboardButton(text="12 взрослых колыбельных")
         ],
         [
-            KeyboardButton(text="❓ Задать вопрос")
+            KeyboardButton(text="Синемалогия")
         ]
     ],
     resize_keyboard=True
 )
+

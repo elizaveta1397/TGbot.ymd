@@ -9,6 +9,7 @@ from keyboards.cinemalogy.invitation import invitation_keyboard
 
 from bot_services.database import add_event
 from bot_services.user_parameters import set_parameter
+from bot_services.cinemalogy.materials import get_material
 
 router = Router()
 
@@ -29,17 +30,18 @@ async def invitation(callback: CallbackQuery):
         "cinemalogy_invitation"
     )
 
-    # --- единственное добавление: загрузка материалов из таблицы ---
-    from bot_services.cinemalogy.materials import get_material
+    # СНАЧАЛА УДАЛЯЕМ ТЕКУЩЕЕ СООБЩЕНИЕ
+    try:
+        await callback.message.delete()
+    except Exception:
+        pass
 
     image_row = get_material("cinemalogy_invitation_image")
-    text_row = get_material("cinemalogy_invitation_text")
 
-    # ---------------------------------------------------------------
-
+    # ПОТОМ ОТПРАВЛЯЕМ НОВОЕ СООБЩЕНИЕ С ФОТО И КНОПКАМИ
     await callback.message.answer_photo(
         photo=image_row["telegram_file_id"],
-        caption=text_row["text"],
+        caption="Выберите ваш билет кнопкой ниже",
         reply_markup=invitation_keyboard()
     )
 

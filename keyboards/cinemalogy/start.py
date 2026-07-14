@@ -10,7 +10,7 @@ def start_keyboard():
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="🎬 Разобрать фильм",
+                    text="🎬 Выбрать кадр",
                     callback_data="cinemalogy_choose_frame"
                 )
             ],
