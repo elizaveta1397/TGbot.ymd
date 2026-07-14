@@ -30,7 +30,7 @@ def invitation_keyboard():
             [
                 InlineKeyboardButton(
                     text="🫂 Партнеры показа",
-                    callback_data="cinemalogy_partners"
+                    callback_data="partners"
                 )
             ],
             [
