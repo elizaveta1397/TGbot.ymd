@@ -11,12 +11,6 @@ def result_keyboard(article_button_text: str, article_url: str):
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=article_button_text,
-                    url=article_url
-                )
-            ],
-            [
-                InlineKeyboardButton(
                     text="🎟 Приглашение на показ",
                     callback_data="cinemalogy_invitation"
                 )
@@ -29,3 +23,4 @@ def result_keyboard(article_button_text: str, article_url: str):
             ]
         ]
     )
+

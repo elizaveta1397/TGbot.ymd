@@ -3,7 +3,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 def start_keyboard():
 
     # Жёстко прописываем URL — без таблиц
-    about_author_url = "https://telegra.ph/Obo-mne-07-07-18"
+    about_author_url = "https://telegra.ph/Obo-mne-07-14-13"
     about_cinemalogy_url = "https://telegra.ph/O-sinemalogii-07-07-2"
 
     return InlineKeyboardMarkup(
