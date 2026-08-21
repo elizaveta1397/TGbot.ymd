@@ -1,6 +1,6 @@
 from aiogram import Router, F
 from aiogram.filters import CommandStart, CommandObject
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 
 from bot_services.database import (
     get_user,
@@ -97,22 +97,28 @@ async def get_gif_id(message: Message):
 # MAIN MENU BUTTONS
 # ============================
 
-# Обо мне → ссылка
+# Обо мне → новая ссылка
 @router.message(F.text == "Обо мне")
 async def about_me(message: Message):
     await message.answer(
-        "Обо мне:\nhttps://telegra.ph/Obo-mne-07-07-18"
+        "Обо мне:\nhttps://telegra.ph/Obo-mne-07-14-13"
     )
 
 
-# Записаться на консультацию → текст + ссылка в слове «анкета»
+# Записаться на консультацию → запускаем consultation_start
 @router.message(F.text == "Записаться на консультацию")
 async def sign_up(message: Message):
-    await message.answer(
-        "К сожалению, на данный момент окна для записи в личную терапию с Елизаветой отсутствуют.\n\n"
-        "Для записи в лист ожидания заполните [анкету](https://forms.gle/TmUVpdhyY7ASCnqDA).",
-        parse_mode="Markdown"
+    from handlers.consultation import consultation_start
+
+    fake_callback = CallbackQuery(
+        id="fake",
+        from_user=message.from_user,
+        message=message,
+        chat_instance="fake",
+        data="consultation_start"
     )
+
+    await consultation_start(fake_callback)
 
 
 # 12 взрослых колыбельных → ссылка

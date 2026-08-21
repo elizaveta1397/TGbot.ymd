@@ -110,3 +110,43 @@ async def notify_admin_payment_done(
             f"Тариф: {tariff}"
         )
     )
+
+
+async def notify_admin_consultation_request(bot, user):
+    username = (
+        f"@{user.username}"
+        if user.username
+        else "не указан"
+    )
+
+    await bot.send_message(
+        ADMIN_ID,
+        (
+            "📩 Запрос на консультацию\n\n"
+            f"Имя: {user.first_name}\n"
+            f"Username: {username}\n"
+            f"Telegram ID: {user.id}"
+        )
+    )
+
+
+async def notify_care_team(bot, user, text):
+    username = (
+        f"@{user.username}"
+        if user.username
+        else "не указан"
+    )
+
+    await bot.send_message(
+        chat_id=8673829586,
+        text=(
+            "🫶 Новый запрос в отдел Заботы\n\n"
+            f"Имя: {user.first_name}\n"
+            f"Фамилия: {user.last_name if user.last_name else 'не указана'}\n"
+            f"Username: {username}\n"
+            f"Telegram ID: {user.id}\n"
+            f"Язык: {user.language_code if user.language_code else 'не указан'}\n\n"
+            "Текст пользователя:\n"
+            f"{text}"
+        )
+    )

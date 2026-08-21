@@ -1,6 +1,8 @@
 from aiogram import Router, F
 from aiogram.types import Message
 
+from bot_services.admin_notifications import notify_care_team
+
 router = Router()
 
 ADMIN_ID = 250428280
@@ -29,5 +31,13 @@ async def process_unknown(message: Message):
 
     # --- Обычный unknown ---
     await message.answer(
-        "Я не понял сообщение. Используйте кнопки меню или нажмите /start."
+        "Я не понял сообщение. Используйте кнопки меню или нажмите /start.\n\n"
+        "Если вам нужна помощь, вы можете написать в отдел Заботы @goncharova_help ♥️"
+    )
+
+    # --- Уведомление в отдел Заботы ---
+    await notify_care_team(
+        bot=message.bot,
+        user=message.from_user,
+        text=message.text
     )
