@@ -1,7 +1,10 @@
+# bot.py
+
 from bot_services.database import create_tables
 from handlers.cinemalogy import router as cinemalogy_router
 from handlers.admin import router_admin_callbacks
 from handlers.unknown import router as unknown_router
+from handlers.consultation import router as consultation_router
 
 from bot_services.database import (
     create_tables,
@@ -28,6 +31,7 @@ dp.message.middleware(
 dp.include_router(start_router)
 dp.include_router(cinemalogy_router)
 dp.include_router(router_admin_callbacks)
+dp.include_router(consultation_router)
 
 dp.include_router(unknown_router)
 

@@ -1,3 +1,5 @@
+# handlers/start.py
+
 from aiogram import Router, F
 from aiogram.filters import CommandStart, CommandObject
 from aiogram.types import Message, CallbackQuery
@@ -108,17 +110,13 @@ async def about_me(message: Message):
 # Записаться на консультацию → запускаем consultation_start
 @router.message(F.text == "Записаться на консультацию")
 async def sign_up(message: Message):
-    from handlers.consultation import consultation_start
+    from handlers.consultation import send_consultation_waitlist
 
-    fake_callback = CallbackQuery(
-        id="fake",
-        from_user=message.from_user,
+    await send_consultation_waitlist(
         message=message,
-        chat_instance="fake",
-        data="consultation_start"
+        user=message.from_user,
+        bot=message.bot
     )
-
-    await consultation_start(fake_callback)
 
 
 # 12 взрослых колыбельных → ссылка
