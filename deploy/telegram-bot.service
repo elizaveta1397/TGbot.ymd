@@ -1,0 +1,15 @@
+[Unit]
+Description=Telegram bot (TGbot.ymd)
+After=network.target
+
+[Service]
+Type=simple
+User=botuser
+WorkingDirectory=/home/botuser/telegram-bot
+ExecStart=/home/botuser/telegram-bot/venv/bin/python bot.py
+Restart=on-failure
+RestartSec=5
+EnvironmentFile=/home/botuser/telegram-bot/.env
+
+[Install]
+WantedBy=multi-user.target
