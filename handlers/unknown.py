@@ -2,7 +2,6 @@ from aiogram import Router, F
 from aiogram.types import Message
 
 from bot_services.admin_notifications import notify_care_team
-from config import ADMIN_ID
 
 router = Router()
 
@@ -21,13 +20,9 @@ async def process_unknown(message: Message):
 
     # --- Админ-команда ---
     if is_admin_command(message.text):
-        if message.from_user.id == ADMIN_ID:
-            from handlers.admin import show_admin_menu
-            await show_admin_menu(message)
-            return
-        else:
-            await message.answer("Вы не админ.")
-            return
+        from handlers.admin import admin_entry
+        await admin_entry(message)
+        return
 
     # --- Обычный unknown ---
     await message.answer(

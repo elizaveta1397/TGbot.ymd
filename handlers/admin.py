@@ -17,10 +17,23 @@ router_admin_callbacks = Router()
 
 
 # ============================
+# Проверка прав администратора
+#
+# Админ — это либо владелец бота (ADMIN_ID), либо любой пользователь,
+# кому реально выдан доступ через admin_grant (admin_mode = "on").
+# ============================
+def is_admin(telegram_id: int) -> bool:
+    if telegram_id == ADMIN_ID:
+        return True
+
+    return get_user_parameter(telegram_id, "admin_mode") == "on"
+
+
+# ============================
 # Вход в админ — вызывается через unknown
 # ============================
 async def admin_entry(message: Message):
-    if message.from_user.id != ADMIN_ID:
+    if not is_admin(message.from_user.id):
         await message.answer("Вы не админ.")
         return
 
@@ -80,7 +93,7 @@ async def show_admin_menu(message: Message):
 @router_admin_callbacks.callback_query(F.data == "admin_toggle")
 async def admin_toggle(callback: CallbackQuery):
 
-    if callback.from_user.id != ADMIN_ID:
+    if not is_admin(callback.from_user.id):
         await callback.answer("Вы не админ.")
         return
 
@@ -105,7 +118,7 @@ async def admin_toggle(callback: CallbackQuery):
 @router_admin_callbacks.callback_query(F.data == "admin_grant")
 async def admin_grant(callback: CallbackQuery):
 
-    if callback.from_user.id != ADMIN_ID:
+    if not is_admin(callback.from_user.id):
         await callback.answer("Вы не админ.")
         return
 
@@ -120,7 +133,7 @@ async def admin_grant(callback: CallbackQuery):
 @router_admin_callbacks.callback_query(F.data == "admin_revoke")
 async def admin_revoke(callback: CallbackQuery):
 
-    if callback.from_user.id != ADMIN_ID:
+    if not is_admin(callback.from_user.id):
         await callback.answer("Вы не админ.")
         return
 
@@ -132,8 +145,11 @@ async def admin_revoke(callback: CallbackQuery):
 # ============================
 # Обработка ввода username
 # ============================
-@router_admin_messages.message(F.text & (F.from_user.id == ADMIN_ID))
+@router_admin_messages.message(F.text)
 async def admin_username_input(message: Message):
+
+    if not is_admin(message.from_user.id):
+        return  # unknown поймает
 
     action = get_user_parameter(message.from_user.id, "admin_waiting_action")
     if action not in ("grant", "revoke"):
