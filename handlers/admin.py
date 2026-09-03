@@ -144,17 +144,23 @@ async def admin_revoke(callback: CallbackQuery):
 
 # ============================
 # Обработка ввода username
+#
+# Роутер должен "забирать" сообщение только тогда, когда это
+# реально ввод username в рамках grant/revoke — иначе (return
+# без совпадения фильтра) апдейт до unknown_router не доходит.
 # ============================
-@router_admin_messages.message(F.text)
-async def admin_username_input(message: Message):
-
+async def awaiting_admin_username(message: Message) -> bool:
     if not is_admin(message.from_user.id):
-        return  # unknown поймает
+        return False
 
     action = get_user_parameter(message.from_user.id, "admin_waiting_action")
-    if action not in ("grant", "revoke"):
-        return  # unknown поймает
+    return action in ("grant", "revoke")
 
+
+@router_admin_messages.message(F.text, awaiting_admin_username)
+async def admin_username_input(message: Message):
+
+    action = get_user_parameter(message.from_user.id, "admin_waiting_action")
     username = message.text.replace("@", "").strip()
 
     connection = sqlite3.connect("/home/botuser/telegram-bot/data/bot.db")
