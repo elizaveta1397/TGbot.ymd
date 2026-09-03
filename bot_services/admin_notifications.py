@@ -1,4 +1,4 @@
-from config import ADMIN_ID
+from config import ADMIN_ID, CARE_TEAM_CHAT_ID
 
 
 async def notify_new_user(bot, user, source):
@@ -42,29 +42,6 @@ async def notify_new_user(bot, user, source):
         text=text
     )
 
-
-async def notify_admin_payment_start(bot, user, tariff):
-    text = (
-        "💳 Старт оплаты\n\n"
-        f"Пользователь: {user.first_name}\n"
-        f"Username: @{user.username if user.username else 'нет'}\n"
-        f"ID: {user.id}\n"
-        f"Тариф: {tariff}"
-    )
-
-    await bot.send_message(chat_id=ADMIN_ID, text=text)
-
-
-async def notify_admin_payment_done(bot, user, tariff):
-    text = (
-        "✅ Оплата подтверждена\n\n"
-        f"Пользователь: {user.first_name}\n"
-        f"Username: @{user.username if user.username else 'нет'}\n"
-        f"ID: {user.id}\n"
-        f"Тариф: {tariff}"
-    )
-
-    await bot.send_message(chat_id=ADMIN_ID, text=text)
 
 async def notify_admin_payment_start(
     bot,
@@ -138,7 +115,7 @@ async def notify_care_team(bot, user, text):
     )
 
     await bot.send_message(
-        chat_id=8673829586,
+        chat_id=CARE_TEAM_CHAT_ID,
         text=(
             "🫶 Новый запрос в отдел Заботы\n\n"
             f"Имя: {user.first_name}\n"

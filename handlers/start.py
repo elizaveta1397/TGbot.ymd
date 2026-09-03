@@ -2,7 +2,7 @@
 
 from aiogram import Router, F
 from aiogram.filters import CommandStart, CommandObject
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message
 
 from bot_services.database import (
     get_user,
@@ -30,7 +30,6 @@ async def start_handler(
 
     # deep link (/start payload)
     source = command.args
-    print(f"DEEP LINK = {source}")
 
     # ----------------------------
     # CINEMALOGY ROUTING

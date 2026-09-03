@@ -9,6 +9,7 @@ from aiogram.types import CallbackQuery
 # Главное меню
 from keyboards.main_menu import main_menu
 from bot_services.user_parameters import get_parameter
+from config import ADMIN_ID
 
 router = Router()
 
@@ -24,7 +25,7 @@ async def payment_done(callback: CallbackQuery):
     # удаляем экран оплаты
     try:
         await callback.message.delete()
-    except:
+    except Exception:
         pass
 
     telegram_id = callback.from_user.id
@@ -49,8 +50,7 @@ async def payment_done(callback: CallbackQuery):
     await callback.answer()
 
     # уведомление админу — теперь с указанием тарифа
-    admin_id = 250428280
     await callback.bot.send_message(
-        admin_id,
+        ADMIN_ID,
         f"Пользователь @{callback.from_user.username} (ID: {callback.from_user.id}) оплатил билет: {tariff}"
     )

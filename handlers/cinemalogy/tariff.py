@@ -23,7 +23,7 @@ async def send_tariff(callback: CallbackQuery, tariff_code: str):
     # удаляем предыдущий экран
     try:
         await callback.message.delete()
-    except:
+    except Exception:
         pass
 
     # записываем шаг

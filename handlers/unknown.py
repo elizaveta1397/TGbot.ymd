@@ -2,10 +2,10 @@ from aiogram import Router, F
 from aiogram.types import Message
 
 from bot_services.admin_notifications import notify_care_team
+from config import ADMIN_ID
 
 router = Router()
 
-ADMIN_ID = 250428280
 ADMIN_WORDS = ("адм", "админ", "admin", "adm")
 
 

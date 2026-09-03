@@ -7,11 +7,10 @@
 from aiogram import Router
 from aiogram.types import Message
 
-from keyboards.cinemalogy.start import start_keyboard, start_keyboard_v2
+from keyboards.cinemalogy.start import start_keyboard_v2
 
 from bot_services.database import add_event
 from bot_services.user_parameters import set_parameter
-from bot_services.cinemalogy.materials import get_material as get_cinemalogy_material
 
 router = Router()
 

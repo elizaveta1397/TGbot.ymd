@@ -7,14 +7,13 @@ from bot_services.database import (
     set_user_parameter,
     delete_user_parameter
 )
+from config import ADMIN_ID
 
-# --- Роутер для сообщений (НЕ ПОДКЛЮЧАЕМ В bot.py) ---
+# --- Роутер для сообщений (ввод username при grant/revoke) ---
 router_admin_messages = Router()
 
-# --- Роутер для callback-кнопок (ПОДКЛЮЧАЕМ В bot.py) ---
+# --- Роутер для callback-кнопок ---
 router_admin_callbacks = Router()
-
-ADMIN_ID = 250428280
 
 
 # ============================

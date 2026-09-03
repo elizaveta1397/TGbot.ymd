@@ -24,7 +24,7 @@ async def payment(callback: CallbackQuery):
     # удаляем предыдущий экран (тариф)
     try:
         await callback.message.delete()
-    except:
+    except Exception:
         pass
 
     # читаем тариф, выбранный ранее
@@ -75,7 +75,7 @@ async def payment_back(callback: CallbackQuery):
     # удаляем экран оплаты
     try:
         await callback.message.delete()
-    except:
+    except Exception:
         pass
 
     # читаем тариф
