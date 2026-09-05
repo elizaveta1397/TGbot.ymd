@@ -10,8 +10,11 @@ import os
 # setdefault, чтобы не перебивать реальный .env при локальном запуске.
 os.environ.setdefault("BOT_TOKEN", "test-token")
 os.environ.setdefault("ADMIN_ID", "1")
-os.environ.setdefault("NOTIFY_ADMIN_ID", "1")
-os.environ.setdefault("CARE_TEAM_CHAT_ID", "1")
+# NOTIFY_ADMIN_ID и CARE_TEAM_CHAT_ID нарочно разные — иначе тест на
+# маршрутизацию notify_care_team() не отличит "ушло не в тот чат"
+# от "ушло куда надо".
+os.environ.setdefault("NOTIFY_ADMIN_ID", "111")
+os.environ.setdefault("CARE_TEAM_CHAT_ID", "222")
 
 import pytest
 
