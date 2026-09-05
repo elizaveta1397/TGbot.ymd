@@ -88,7 +88,8 @@ async def cinemalogy_home(callback: CallbackQuery):
 
     await start_cinemalogy(
         message=callback.message,
-        source="home_button"
+        source="home_button",
+        telegram_id=callback.from_user.id
     )
 
     await callback.answer()

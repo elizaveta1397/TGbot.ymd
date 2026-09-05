@@ -17,13 +17,19 @@ router = Router()
 
 async def start_cinemalogy(
     message: Message,
-    source: str | None = None
+    source: str | None = None,
+    telegram_id: int | None = None
 ):
     """
     Первый экран Cinemalogy.
+
+    telegram_id — на случай, если message не от пользователя (например,
+    это message бота при вызове из callback, как в cinemalogy_home):
+    тогда message.from_user был бы ID бота, а не того, кто нажал кнопку.
     """
 
-    telegram_id = message.from_user.id
+    if telegram_id is None:
+        telegram_id = message.from_user.id
 
     # Записываем текущий шаг
     set_parameter(

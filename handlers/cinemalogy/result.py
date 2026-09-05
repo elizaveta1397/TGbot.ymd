@@ -91,8 +91,10 @@ async def result(callback: CallbackQuery):
         f"cinemalogy_frame_{int(frame):02d}_article_url"
     )
 
-    article_button_text = article_button_row["text"]
-    article_url = article_url_row["url"]
+    article_button_text = (
+        article_button_row["text"] if article_button_row else None
+    )
+    article_url = article_url_row["url"] if article_url_row else None
 
     # Отправляем результат
     await callback.message.answer_photo(

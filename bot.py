@@ -26,6 +26,9 @@ dp = Dispatcher()
 dp.message.middleware(
     ActivityMiddleware()
 )
+dp.callback_query.middleware(
+    ActivityMiddleware()
+)
 
 dp.include_router(start_router)
 dp.include_router(cinemalogy_router)

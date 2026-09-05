@@ -1,4 +1,4 @@
-from config import ADMIN_ID, CARE_TEAM_CHAT_ID
+from config import NOTIFY_ADMIN_ID, CARE_TEAM_CHAT_ID
 
 
 async def notify_new_user(bot, user, source):
@@ -38,7 +38,7 @@ async def notify_new_user(bot, user, source):
     )
 
     await bot.send_message(
-        chat_id=ADMIN_ID,
+        chat_id=NOTIFY_ADMIN_ID,
         text=text
     )
 
@@ -55,7 +55,7 @@ async def notify_admin_payment_start(
     )
 
     await bot.send_message(
-        ADMIN_ID,
+        NOTIFY_ADMIN_ID,
         (
             "💳 Пользователь перешел к оплате\n\n"
             f"Имя: {user.first_name}\n"
@@ -78,7 +78,7 @@ async def notify_admin_payment_done(
     )
 
     await bot.send_message(
-        ADMIN_ID,
+        NOTIFY_ADMIN_ID,
         (
             "✅ Пользователь нажал «Билет оплачен»\n\n"
             f"Имя: {user.first_name}\n"
@@ -97,12 +97,31 @@ async def notify_admin_consultation_request(bot, user):
     )
 
     await bot.send_message(
-        ADMIN_ID,
+        NOTIFY_ADMIN_ID,
         (
             "📩 Запрос на консультацию\n\n"
             f"Имя: {user.first_name}\n"
             f"Username: {username}\n"
             f"Telegram ID: {user.id}"
+        )
+    )
+
+
+async def notify_admin_tariff_viewed(bot, user, tariff_name):
+    username = (
+        f"@{user.username}"
+        if user.username
+        else "не указан"
+    )
+
+    await bot.send_message(
+        NOTIFY_ADMIN_ID,
+        (
+            "👀 Пользователь просмотрел тариф\n\n"
+            f"Имя: {user.first_name}\n"
+            f"Username: {username}\n"
+            f"Telegram ID: {user.id}\n"
+            f"Тариф: {tariff_name}"
         )
     )
 

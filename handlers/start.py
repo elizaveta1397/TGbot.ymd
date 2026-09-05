@@ -7,7 +7,6 @@ from aiogram.types import Message
 from bot_services.database import (
     get_user,
     add_user,
-    update_last_activity,
     add_event
 )
 
@@ -32,19 +31,10 @@ async def start_handler(
     source = command.args
 
     # ----------------------------
-    # CINEMALOGY ROUTING
-    # ----------------------------
-    if source and source.startswith("cinemalogy"):
-        from handlers.cinemalogy.start import start_cinemalogy
-
-        await start_cinemalogy(
-            message=message,
-            source=source
-        )
-        return
-
-    # ----------------------------
-    # USER LOGIC
+    # NEW-USER REGISTRATION
+    # (до любых веток ниже — раньше стояло после CINEMALOGY ROUTING,
+    # и вход по cinemalogy-ссылке эту регистрацию вообще пропускал:
+    # ни строки в users, ни уведомления админу)
     # ----------------------------
     user = get_user(telegram_user.id)
 
@@ -63,9 +53,25 @@ async def start_handler(
             source
         )
 
-    else:
-        update_last_activity(telegram_user.id)
+    # ----------------------------
+    # CINEMALOGY ROUTING
+    # ----------------------------
+    if source and source.startswith("cinemalogy"):
+        from handlers.cinemalogy.start import start_cinemalogy
 
+        await start_cinemalogy(
+            message=message,
+            source=source
+        )
+        return
+
+    # ----------------------------
+    # USER LOGIC (обычный /start уже существующего пользователя)
+    # ----------------------------
+    if user is not None:
+        # update_last_activity сюда не добавляем — ActivityMiddleware
+        # уже обновил её перед этим хендлером для любого сообщения
+        # существующего пользователя, повторный вызов был бы дублем.
         add_event(
             telegram_user.id,
             "start",

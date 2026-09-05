@@ -9,6 +9,7 @@ from keyboards.cinemalogy.payment import payment_keyboard
 
 from bot_services.database import add_event
 from bot_services.user_parameters import set_parameter, get_parameter
+from bot_services.admin_notifications import notify_admin_payment_start
 
 # импортируем существующую функцию показа тарифа
 from handlers.cinemalogy.tariff import send_tariff
@@ -37,6 +38,12 @@ async def payment(callback: CallbackQuery):
     add_event(
         telegram_id,
         "cinemalogy_payment_opened",
+        tariff
+    )
+
+    await notify_admin_payment_start(
+        callback.bot,
+        callback.from_user,
         tariff
     )
 

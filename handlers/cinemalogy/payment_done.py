@@ -9,7 +9,7 @@ from aiogram.types import CallbackQuery
 # Главное меню
 from keyboards.main_menu import main_menu
 from bot_services.user_parameters import get_parameter
-from config import ADMIN_ID
+from bot_services.admin_notifications import notify_admin_payment_done
 
 router = Router()
 
@@ -50,7 +50,4 @@ async def payment_done(callback: CallbackQuery):
     await callback.answer()
 
     # уведомление админу — теперь с указанием тарифа
-    await callback.bot.send_message(
-        ADMIN_ID,
-        f"Пользователь @{callback.from_user.username} (ID: {callback.from_user.id}) оплатил билет: {tariff}"
-    )
+    await notify_admin_payment_done(callback.bot, callback.from_user, tariff)

@@ -10,8 +10,7 @@ from keyboards.cinemalogy.tariffs import tariff_keyboard
 from bot_services.database import add_event
 from bot_services.user_parameters import set_parameter
 from bot_services.cinemalogy.materials import get_material
-
-from config import ADMIN_ID
+from bot_services.admin_notifications import notify_admin_tariff_viewed
 
 router = Router()
 
@@ -49,14 +48,10 @@ async def send_tariff(callback: CallbackQuery, tariff_code: str):
 async def tariff_mini(callback: CallbackQuery):
 
     telegram_id = callback.from_user.id
-    username = callback.from_user.username or "-"
 
     set_parameter(telegram_id, "cinemalogy_tariff", "mini")
 
-    await callback.bot.send_message(
-        ADMIN_ID,
-        f"Пользователь @{username} просмотрел тариф MINI"
-    )
+    await notify_admin_tariff_viewed(callback.bot, callback.from_user, "MINI")
 
     await send_tariff(callback, "mini")
 
@@ -65,14 +60,10 @@ async def tariff_mini(callback: CallbackQuery):
 async def tariff_midi(callback: CallbackQuery):
 
     telegram_id = callback.from_user.id
-    username = callback.from_user.username or "-"
 
     set_parameter(telegram_id, "cinemalogy_tariff", "midi")
 
-    await callback.bot.send_message(
-        ADMIN_ID,
-        f"Пользователь @{username} просмотрел тариф MIDI"
-    )
+    await notify_admin_tariff_viewed(callback.bot, callback.from_user, "MIDI")
 
     await send_tariff(callback, "midi")
 
@@ -81,14 +72,10 @@ async def tariff_midi(callback: CallbackQuery):
 async def tariff_maxi(callback: CallbackQuery):
 
     telegram_id = callback.from_user.id
-    username = callback.from_user.username or "-"
 
     set_parameter(telegram_id, "cinemalogy_tariff", "maxi")
 
-    await callback.bot.send_message(
-        ADMIN_ID,
-        f"Пользователь @{username} просмотрел тариф MAXI"
-    )
+    await notify_admin_tariff_viewed(callback.bot, callback.from_user, "MAXI")
 
     await send_tariff(callback, "maxi")
 
