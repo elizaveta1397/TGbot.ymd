@@ -4,5 +4,6 @@ __pycache__/
 *.pyc
 data/*.db
 logs/
+google_sheets_credentials*.json
 
 backups/
