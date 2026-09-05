@@ -39,7 +39,8 @@ async def notify_new_user(bot, user, source):
 
     await bot.send_message(
         chat_id=NOTIFY_ADMIN_ID,
-        text=text
+        text=text,
+        disable_notification=True  # тихое по умолчанию — см. CLAUDE.md
     )
 
 
@@ -62,7 +63,8 @@ async def notify_admin_payment_start(
             f"Username: {username}\n"
             f"Telegram ID: {user.id}\n"
             f"Тариф: {tariff}"
-        )
+        ),
+        disable_notification=True  # тихое по умолчанию — см. CLAUDE.md
     )
 
 
@@ -103,7 +105,8 @@ async def notify_admin_consultation_request(bot, user):
             f"Имя: {user.first_name}\n"
             f"Username: {username}\n"
             f"Telegram ID: {user.id}"
-        )
+        ),
+        disable_notification=True  # тихое по умолчанию — см. CLAUDE.md
     )
 
 
@@ -122,7 +125,8 @@ async def notify_admin_tariff_viewed(bot, user, tariff_name):
             f"Username: {username}\n"
             f"Telegram ID: {user.id}\n"
             f"Тариф: {tariff_name}"
-        )
+        ),
+        disable_notification=True  # тихое по умолчанию — см. CLAUDE.md
     )
 
 
