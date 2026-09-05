@@ -7,10 +7,11 @@
 from aiogram import Router
 from aiogram.types import Message
 
-from keyboards.cinemalogy.start import start_keyboard_v2
+from keyboards.cinemalogy.start import start_keyboard, start_keyboard_v2
 
 from bot_services.database import add_event
 from bot_services.user_parameters import set_parameter
+from handlers.admin import is_admin
 
 router = Router()
 
@@ -45,25 +46,33 @@ async def start_cinemalogy(
         source
     )
 
-    # # Текст — БЕЗ жирного, БЕЗ курсива, БЕЗ HTML
-    # start_text = (
-    #     "Добро пожаловать в мир синемалогии!\n\n"
-    #     "Я – Гончарова Елизавета, EMDR‑терапевт, интегративный психолог "
-    #     "проведу вас в тайны вашего бессознательного через культовые фильмы\n\n"
-    #     "Я подготовила для вас интерактив, чтобы размяться перед кинопоказом\n\n"
-    #     "Нажмите на кнопку «Выбрать кадр», чтобы начать"
-    # )
-
-    start_text = (
-        "Добро пожаловать в Синемалогию!\n\n"
-        "С вами я, Гончарова Елизавета, EMDR-терапевт, психолог, создатель Синемалогии ♥️\n\n"
-        "В августе кинопраздник прошел очень изысканно. Увидеть атмосферу встречи можно в "
-        "<a href=\"https://shaverinaa.ru/disk/sinemalogiya-0z6ljx\">фотографиях</a>\n\n"
-        "Анонс предстоящей Синемалогии будет в моем "
-        "<a href=\"https://t.me/your_mental_doc\">телеграм-канале</a> и "
-        "<a href=\"https://www.instagram.com/your.mental.doc?igsi=YmhrNTdsNHg2bzVi&utm_source=qr\">запрещенной социальной сети</a>\n"
-        "Подписывайтесь, чтобы занять место в первом ряду 🔜"
-    )
+    # Процесс сейчас закрыт для обычных пользователей (кинопоказ прошёл,
+    # следующий ещё не анонсирован) — им показываем только анонс.
+    # Админу (владелец бота или admin_mode = "on", см. handlers/admin.py)
+    # показываем рабочую воронку, чтобы можно было пройти и проверить её,
+    # пока она закрыта для всех остальных.
+    if is_admin(telegram_id):
+        # Текст — БЕЗ жирного, БЕЗ курсива, БЕЗ HTML
+        start_text = (
+            "Добро пожаловать в мир синемалогии!\n\n"
+            "Я – Гончарова Елизавета, EMDR‑терапевт, интегративный психолог "
+            "проведу вас в тайны вашего бессознательного через культовые фильмы\n\n"
+            "Я подготовила для вас интерактив, чтобы размяться перед кинопоказом\n\n"
+            "Нажмите на кнопку «Выбрать кадр», чтобы начать"
+        )
+        keyboard = start_keyboard()
+    else:
+        start_text = (
+            "Добро пожаловать в Синемалогию!\n\n"
+            "С вами я, Гончарова Елизавета, EMDR-терапевт, психолог, создатель Синемалогии ♥️\n\n"
+            "В августе кинопраздник прошел очень изысканно. Увидеть атмосферу встречи можно в "
+            "<a href=\"https://shaverinaa.ru/disk/sinemalogiya-0z6ljx\">фотографиях</a>\n\n"
+            "Анонс предстоящей Синемалогии будет в моем "
+            "<a href=\"https://t.me/your_mental_doc\">телеграм-канале</a> и "
+            "<a href=\"https://www.instagram.com/your.mental.doc?igsi=YmhrNTdsNHg2bzVi&utm_source=qr\">запрещенной социальной сети</a>\n"
+            "Подписывайтесь, чтобы занять место в первом ряду 🔜"
+        )
+        keyboard = start_keyboard_v2()
 
     # Получаем file_id стартовой картинки
     # start_image_row = get_cinemalogy_material("cinemalogy_start_image")
@@ -75,7 +84,6 @@ async def start_cinemalogy(
     await message.answer_photo(
         photo=start_image,
         caption=start_text,
-        # reply_markup=start_keyboard()
-        reply_markup=start_keyboard_v2(),
+        reply_markup=keyboard,
         parse_mode="HTML"
     )
