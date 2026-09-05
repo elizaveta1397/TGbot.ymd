@@ -56,9 +56,9 @@ async def test_regular_user_sees_closed_announcement_without_choose_frame_button
     db, fake_message
 ):
     """
-    Процесс сейчас закрыт для всех, кроме админа: обычный пользователь
-    должен видеть только анонс, без кнопки "Выбрать кадр" — иначе он
-    попадёт в воронку, хотя она не работает.
+    Процесс сейчас закрыт для всех, у кого не включён admin_mode:
+    обычный пользователь должен видеть только анонс, без кнопки
+    "Выбрать кадр" — иначе он попадёт в воронку, хотя она не работает.
     """
 
     await start_cinemalogy(message=fake_message)
@@ -68,13 +68,13 @@ async def test_regular_user_sees_closed_announcement_without_choose_frame_button
     assert "Синемалогию" in kwargs["caption"]
 
 
-async def test_admin_sees_working_funnel_with_choose_frame_button(
+async def test_admin_mode_on_sees_working_funnel_with_choose_frame_button(
     db, fake_message
 ):
     """
-    Админ (владелец бота или admin_mode = "on") должен видеть рабочую
-    воронку даже пока она закрыта для остальных — чтобы можно было
-    её проверить.
+    Именно admin_mode = "on" (см. handlers/admin.py, admin_grant)
+    открывает рабочую воронку, пока она закрыта для остальных — не
+    is_admin() в целом.
     """
 
     set_parameter(fake_message.from_user.id, "admin_mode", "on")
@@ -84,3 +84,22 @@ async def test_admin_sees_working_funnel_with_choose_frame_button(
     kwargs = fake_message.answer_photo.await_args.kwargs
     assert "cinemalogy_choose_frame" in _callback_data(kwargs["reply_markup"])
     assert "Нажмите на кнопку «Выбрать кадр»" in kwargs["caption"]
+
+
+async def test_bot_owner_without_admin_mode_still_sees_closed_announcement(
+    db, fake_message
+):
+    """
+    Быть ADMIN_ID (владельцем бота) самим по себе недостаточно — если
+    admin_mode ему не включали явно, воронка для него тоже закрыта.
+    """
+
+    from config import ADMIN_ID
+
+    fake_message.from_user.id = ADMIN_ID
+    # admin_mode сознательно не включаем
+
+    await start_cinemalogy(message=fake_message)
+
+    kwargs = fake_message.answer_photo.await_args.kwargs
+    assert "cinemalogy_choose_frame" not in _callback_data(kwargs["reply_markup"])

@@ -10,8 +10,7 @@ from aiogram.types import Message
 from keyboards.cinemalogy.start import start_keyboard, start_keyboard_v2
 
 from bot_services.database import add_event
-from bot_services.user_parameters import set_parameter
-from handlers.admin import is_admin
+from bot_services.user_parameters import get_parameter, set_parameter
 
 router = Router()
 
@@ -48,10 +47,13 @@ async def start_cinemalogy(
 
     # Процесс сейчас закрыт для обычных пользователей (кинопоказ прошёл,
     # следующий ещё не анонсирован) — им показываем только анонс.
-    # Админу (владелец бота или admin_mode = "on", см. handlers/admin.py)
-    # показываем рабочую воронку, чтобы можно было пройти и проверить её,
-    # пока она закрыта для всех остальных.
-    if is_admin(telegram_id):
+    # Показываем рабочую воронку только если явно включён admin_mode
+    # (handlers/admin.py, admin_grant) — не всем, кому is_admin()
+    # разрешил бы доступ к админ-панели (например, ADMIN_ID сам по
+    # себе тут не считается, если admin_mode ему не включали).
+    admin_mode_on = get_parameter(telegram_id, "admin_mode") == "on"
+
+    if admin_mode_on:
         # Текст — БЕЗ жирного, БЕЗ курсива, БЕЗ HTML
         start_text = (
             "Добро пожаловать в мир синемалогии!\n\n"
