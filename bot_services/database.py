@@ -93,6 +93,26 @@ def get_user(telegram_id):
     return user
 
 
+def get_all_users():
+    """
+    Все пользователи, старые сначала — для выгрузки на лист
+    "Пользователи" в Google Sheets (bot_services/analytics/users_export.py).
+    """
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT * FROM users ORDER BY registration_date"
+    )
+
+    users = cursor.fetchall()
+
+    conn.close()
+
+    return users
+
+
 def add_user(
     telegram_id,
     username,

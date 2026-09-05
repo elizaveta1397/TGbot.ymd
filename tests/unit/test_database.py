@@ -8,6 +8,7 @@ import sqlite3
 from bot_services.database import (
     add_user,
     get_user,
+    get_all_users,
     update_last_activity,
     add_event,
     cleanup_old_events,
@@ -37,6 +38,25 @@ def test_add_and_get_user(db):
     assert user[1] == 1          # telegram_id
     assert user[2] == "liza"     # username
     assert user[8] == "ads"      # source
+
+
+def test_get_all_users_orders_by_registration_date(db):
+    add_user(telegram_id=2, username="second", first_name="B", last_name=None)
+    add_user(telegram_id=1, username="first", first_name="A", last_name=None)
+
+    conn = sqlite3.connect(db.DB_PATH)
+    conn.execute(
+        "UPDATE users SET registration_date = '2020-01-01 00:00:00' WHERE telegram_id = 1"
+    )
+    conn.execute(
+        "UPDATE users SET registration_date = '2021-01-01 00:00:00' WHERE telegram_id = 2"
+    )
+    conn.commit()
+    conn.close()
+
+    users = get_all_users()
+
+    assert [u[1] for u in users] == [1, 2]  # telegram_id, старые сначала
 
 
 def test_update_last_activity_does_not_error(db):

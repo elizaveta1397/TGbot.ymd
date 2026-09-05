@@ -87,7 +87,13 @@ def run_export(spreadsheet_id, credentials_path):
 
     import gspread
 
+    from bot_services.analytics.users_export import sync_users_sheet
+
     gc = gspread.service_account(filename=credentials_path)
     spreadsheet = gc.open_by_key(spreadsheet_id)
 
     write_to_sheets(spreadsheet, build_export_data())
+
+    # "Пользователи" — единственный лист, который не перезаписывается
+    # целиком (см. users_export.py: там ручные "Комментарий").
+    sync_users_sheet(spreadsheet)
