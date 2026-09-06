@@ -2,6 +2,7 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 import sqlite3
 
+from bot_services import database
 from bot_services.database import (
     get_user_parameter,
     set_user_parameter,
@@ -47,7 +48,7 @@ async def build_admin_menu_text_and_keyboard(telegram_id: int):
     my_status = get_user_parameter(telegram_id, "admin_mode")
     my_status = "on" if my_status == "on" else "off"
 
-    connection = sqlite3.connect("/home/botuser/telegram-bot/data/bot.db")
+    connection = sqlite3.connect(database.DB_PATH)
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
 
@@ -163,7 +164,7 @@ async def admin_username_input(message: Message):
     action = get_user_parameter(message.from_user.id, "admin_waiting_action")
     username = message.text.replace("@", "").strip()
 
-    connection = sqlite3.connect("/home/botuser/telegram-bot/data/bot.db")
+    connection = sqlite3.connect(database.DB_PATH)
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
 

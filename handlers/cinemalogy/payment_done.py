@@ -8,7 +8,8 @@ from aiogram.types import CallbackQuery
 
 # Главное меню
 from keyboards.main_menu import main_menu
-from bot_services.user_parameters import get_parameter
+from bot_services.database import add_event
+from bot_services.user_parameters import get_parameter, set_parameter
 from bot_services.admin_notifications import notify_admin_payment_done
 
 router = Router()
@@ -30,6 +31,13 @@ async def payment_done(callback: CallbackQuery):
 
     telegram_id = callback.from_user.id
     tariff = get_parameter(telegram_id, "cinemalogy_tariff")
+
+    # записываем шаг
+    set_parameter(telegram_id, "current_step", "payment_done")
+
+    # аналитика — раньше её тут не было вообще, самый важный шаг
+    # воронки (подтверждение оплаты) не попадал в user_events
+    add_event(telegram_id, "cinemalogy_payment_done", tariff)
 
     # сообщение пользователю
     await callback.message.answer(

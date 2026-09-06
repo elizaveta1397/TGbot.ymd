@@ -24,8 +24,7 @@ CAPTION_TEXT = (
 @router.callback_query(
     lambda c: c.data in (
         "frame_next",
-        "frame_prev",
-        "frame_select"
+        "frame_prev"
     )
 )
 async def frame_navigation(callback: CallbackQuery):
@@ -111,9 +110,3 @@ async def frame_navigation(callback: CallbackQuery):
 
         await callback.answer()
         return
-
-    #
-    # Выбран кадр
-    #
-    if callback.data == "frame_select":
-        await callback.answer()

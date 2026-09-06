@@ -17,9 +17,9 @@ def set_current_step(user_id: int, step: str):
     """
 
     set_user_parameter(
-        user_id=user_id,
-        key="current_step",
-        value=step
+        telegram_id=user_id,
+        parameter_name="current_step",
+        parameter_value=step
     )
 
 
@@ -29,6 +29,6 @@ def get_current_step(user_id: int):
     """
 
     return get_user_parameter(
-        user_id=user_id,
-        key="current_step"
+        telegram_id=user_id,
+        parameter_name="current_step"
     )
