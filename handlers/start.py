@@ -89,19 +89,6 @@ async def start_handler(
 
 
 # ============================
-# FILE ID HELPERS
-# ============================
-@router.message(F.photo)
-async def get_file_id(message: Message):
-    await message.answer(message.photo[-1].file_id)
-
-
-@router.message(F.animation)
-async def get_gif_id(message: Message):
-    await message.answer(message.animation.file_id)
-
-
-# ============================
 # MAIN MENU BUTTONS
 # ============================
 
