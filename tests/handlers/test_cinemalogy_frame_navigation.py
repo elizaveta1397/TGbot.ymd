@@ -57,12 +57,3 @@ async def test_frame_prev_wraps_around_before_first_frame(
     assert get_parameter(
         fake_callback.from_user.id, "cinemalogy_current_frame"
     ) == "12"
-
-
-async def test_frame_select_just_acknowledges_callback(db, fake_callback):
-    fake_callback.data = "frame_select"
-
-    await frame_navigation(fake_callback)
-
-    fake_callback.answer.assert_awaited_once()
-    fake_callback.message.edit_media.assert_not_awaited()

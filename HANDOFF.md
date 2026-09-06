@@ -75,12 +75,25 @@
 ## Известные баги — не трогать без явной просьбы Лизы
 
 Список в `CLAUDE.md` → «Известные баги» короче, чем был:
-`current_step.py` из него убрал — починен в этой сессии. Осталось:
-`handlers/cinemalogy/frame_navigation.py:24` (мёртвый хендлер),
-`middlewares/activity.py:29` (не фильтрует нетекстовые события),
-`handlers/admin.py:50` (хардкод пути к БД),
-`bot_services/database.py:299` (мёртвая функция, не путать с новой
-`get_all_users()` из этой сессии — разные функции).
+`current_step.py` из него убрал — починен в прошлой сессии,
+Список в `CLAUDE.md` → «Известные баги» полностью закрыт в этой
+сессии, раздел убран:
+- `middlewares/activity.py:29` — `hasattr` → `getattr` + truthy-проверка
+  текста; заодно `handlers/unknown.py` научился отвечать на
+  нетекстовые сообщения — обычному пользователю unknown-сценарий,
+  админу — `file_id` вложения; тесты добавлены.
+- `bot_services/database.py:299` — удалена мёртвая
+  `get_all_user_parameters()` вместе со своим тестом (не путать с
+  `get_all_users()` из прошлой сессии — разные функции, та осталась).
+- `handlers/cinemalogy/frame_navigation.py:24` — убрана мёртвая ветка
+  `frame_select` (реальная обработка — `confirm_frame.py::frame_select`,
+  регистрируется раньше и не менялась) вместе со своим тестом.
+- `handlers/admin.py:50` — оба `sqlite3.connect(...)` с
+  захардкоженным абсолютным путём переведены на `database.DB_PATH`
+  (импорт модуля, не `from ... import DB_PATH` — иначе имя не следило
+  бы за monkeypatch в тестах). Заодно впервые появились тесты на
+  `handlers/admin.py` (их не было вовсе) — 16 штук,
+  `tests/handlers/test_admin.py`.
 
 ## Открытые вопросы для Лизы
 

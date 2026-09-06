@@ -26,11 +26,17 @@ class ActivityMiddleware(BaseMiddleware):
 
                 update_last_activity(user.id)
 
-                if hasattr(event, "text"):
+                # getattr, не hasattr: у Message поле "text" есть всегда
+                # (None для медиа), а у CallbackQuery его нет вовсе —
+                # hasattr(event, "text") было истинно для любого Message,
+                # включая фото/стикеры, и писало "message" с event_data=None.
+                text = getattr(event, "text", None)
+
+                if text:
                     add_event(
                         user.id,
                         "message",
-                        event.text
+                        text
                     )
 
         return await handler(

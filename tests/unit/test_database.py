@@ -15,7 +15,6 @@ from bot_services.database import (
     get_user_parameter,
     set_user_parameter,
     delete_user_parameter,
-    get_all_user_parameters,
 )
 
 
@@ -132,14 +131,6 @@ class TestUserParameters:
         delete_user_parameter(1, "current_step")
 
         assert get_user_parameter(1, "current_step") is None
-
-    def test_get_all_parameters(self, db):
-        set_user_parameter(1, "current_step", "a")
-        set_user_parameter(1, "admin_mode", "on")
-
-        rows = dict(get_all_user_parameters(1))
-
-        assert rows == {"current_step": "a", "admin_mode": "on"}
 
     def test_parameters_are_isolated_per_user(self, db):
         set_user_parameter(1, "current_step", "user1_step")

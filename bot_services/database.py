@@ -314,30 +314,3 @@ def delete_user_parameter(
 
     conn.commit()
     conn.close()
-
-
-def get_all_user_parameters(
-    telegram_id
-):
-    """
-    Получить все параметры пользователя.
-    """
-
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT
-            parameter_name,
-            parameter_value
-        FROM user_parameters
-        WHERE telegram_id = ?
-    """, (
-        telegram_id,
-    ))
-
-    rows = cursor.fetchall()
-
-    conn.close()
-
-    return rows
