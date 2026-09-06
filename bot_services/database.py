@@ -314,3 +314,38 @@ def delete_user_parameter(
 
     conn.commit()
     conn.close()
+
+
+def delete_user(telegram_id):
+    """
+    Право на удаление персональных данных (ст. 14 152-ФЗ) — полностью
+    стирает пользователя из БД бота: users, user_events,
+    user_parameters. Не трогает выгрузку в Google Sheets (отдельный
+    пункт бэклога, docs/IDEAS.md п.1).
+
+    Возвращает True, если строка в users существовала и была удалена,
+    False — если пользователя и так не было (нечего удалять).
+    """
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "DELETE FROM users WHERE telegram_id = ?",
+        (telegram_id,)
+    )
+    existed = cursor.rowcount > 0
+
+    cursor.execute(
+        "DELETE FROM user_events WHERE telegram_id = ?",
+        (telegram_id,)
+    )
+    cursor.execute(
+        "DELETE FROM user_parameters WHERE telegram_id = ?",
+        (telegram_id,)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return existed

@@ -14,6 +14,9 @@ from handlers.start import (
     about_me,
     cinemalogy_start,
     consent_accept,
+    delete_me_cancel,
+    delete_me_command,
+    delete_me_confirm,
     lullabies,
     policy_command,
     policy_view,
@@ -155,6 +158,66 @@ async def test_policy_view_callback_sends_document(fake_callback):
     await policy_view(fake_callback)
 
     fake_callback.message.answer_document.assert_awaited_once()
+    fake_callback.answer.assert_awaited_once()
+
+
+async def test_delete_me_command_without_data_says_nothing_to_delete(
+    db, fake_message
+):
+    await delete_me_command(fake_message)
+
+    fake_message.answer.assert_awaited_once()
+    assert "не нашли" in fake_message.answer.await_args.args[0]
+
+
+async def test_delete_me_command_with_data_asks_confirmation(db, fake_message):
+    add_user(
+        telegram_id=fake_message.from_user.id,
+        username="testuser",
+        first_name="Test",
+        last_name=None,
+    )
+
+    await delete_me_command(fake_message)
+
+    fake_message.answer.assert_awaited_once()
+    args, kwargs = fake_message.answer.await_args
+    assert "необратимо" in args[0]
+    assert kwargs["reply_markup"] is not None
+
+
+async def test_delete_me_confirm_deletes_user_and_notifies_admin(
+    db, fake_callback
+):
+    add_user(
+        telegram_id=fake_callback.from_user.id,
+        username="testuser",
+        first_name="Test",
+        last_name=None,
+    )
+
+    await delete_me_confirm(fake_callback)
+
+    assert db.get_user(fake_callback.from_user.id) is None
+    assert fake_callback.message.delete.await_count == 1
+    fake_callback.bot.send_message.assert_awaited_once()  # notify_admin_data_deleted
+    fake_callback.message.answer.assert_awaited_once()
+    assert "удалены" in fake_callback.message.answer.await_args.args[0]
+
+
+async def test_delete_me_confirm_without_data_does_not_notify_admin(
+    db, fake_callback
+):
+    await delete_me_confirm(fake_callback)
+
+    fake_callback.bot.send_message.assert_not_awaited()
+    assert "уже не было" in fake_callback.message.answer.await_args.args[0]
+
+
+async def test_delete_me_cancel_just_closes_the_prompt(db, fake_callback):
+    await delete_me_cancel(fake_callback)
+
+    assert fake_callback.message.delete.await_count == 1
     fake_callback.answer.assert_awaited_once()
 
 

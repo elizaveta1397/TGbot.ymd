@@ -130,6 +130,25 @@ async def notify_admin_tariff_viewed(bot, user, tariff_name):
     )
 
 
+async def notify_admin_data_deleted(bot, user):
+    username = (
+        f"@{user.username}"
+        if user.username
+        else "не указан"
+    )
+
+    await bot.send_message(
+        NOTIFY_ADMIN_ID,
+        (
+            "🗑 Пользователь удалил свои данные (152-ФЗ, ст. 14)\n\n"
+            f"Имя: {user.first_name}\n"
+            f"Username: {username}\n"
+            f"Telegram ID: {user.id}"
+        ),
+        disable_notification=True  # тихое по умолчанию — см. CLAUDE.md
+    )
+
+
 async def notify_care_team(bot, user, text):
     username = (
         f"@{user.username}"

@@ -9,13 +9,18 @@ from aiogram.types import Message, CallbackQuery, FSInputFile
 from bot_services.database import (
     get_user,
     add_user,
-    add_event
+    add_event,
+    delete_user
 )
 from bot_services.user_parameters import set_parameter
 
 from keyboards.main_menu import main_menu
 from keyboards.consent import consent_keyboard
-from bot_services.admin_notifications import notify_new_user
+from keyboards.delete_me import delete_confirm_keyboard
+from bot_services.admin_notifications import (
+    notify_new_user,
+    notify_admin_data_deleted
+)
 
 router = Router()
 
@@ -187,6 +192,71 @@ async def consent_accept(callback: CallbackQuery):
         "Добро пожаловать",
         reply_markup=main_menu
     )
+
+
+# ============================
+# УДАЛЕНИЕ ДАННЫХ ПО ЗАПРОСУ — ст. 14 152-ФЗ, docs/IDEAS.md п.1
+# ============================
+@router.message(Command("delete_me"))
+async def delete_me_command(message: Message):
+    telegram_id = message.from_user.id
+
+    if get_user(telegram_id) is None:
+        await message.answer(
+            "Мы не нашли ваших данных в этом боте — либо вы ещё не "
+            "начинали (/start), либо они уже были удалены раньше."
+        )
+        return
+
+    await message.answer(
+        "Удалить все ваши данные из этого бота — регистрацию, историю "
+        "действий, сохранённые параметры (тариф, шаг сценария и т.п.)? "
+        "Это необратимо.",
+        reply_markup=delete_confirm_keyboard()
+    )
+
+
+@router.callback_query(F.data == "delete_me_confirm")
+async def delete_me_confirm(callback: CallbackQuery):
+    telegram_user = callback.from_user
+
+    existed = delete_user(telegram_user.id)
+
+    try:
+        await callback.message.delete()
+    except Exception:
+        pass
+
+    await callback.answer()
+
+    if not existed:
+        await callback.message.answer("Ваших данных уже не было в системе.")
+        return
+
+    # Журнал обращений субъектов (152-ФЗ, ст. 14, п.7 чек-листа из
+    # памяти ru-legal-compliance-risks) — в лог процесса (journalctl),
+    # не в БД: сама БД для этого telegram_id уже стёрта строкой выше.
+    print(
+        "[PDN] Запрос на удаление обработан: "
+        f"telegram_id={telegram_user.id}"
+    )
+
+    await notify_admin_data_deleted(callback.bot, telegram_user)
+
+    await callback.message.answer(
+        "Готово — все ваши данные удалены. Если снова напишете /start, "
+        "регистрация начнётся заново."
+    )
+
+
+@router.callback_query(F.data == "delete_me_cancel")
+async def delete_me_cancel(callback: CallbackQuery):
+    try:
+        await callback.message.delete()
+    except Exception:
+        pass
+
+    await callback.answer("Отменено")
 
 
 # ============================

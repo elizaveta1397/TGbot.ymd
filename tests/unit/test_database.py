@@ -15,6 +15,7 @@ from bot_services.database import (
     get_user_parameter,
     set_user_parameter,
     delete_user_parameter,
+    delete_user,
 )
 
 
@@ -109,6 +110,38 @@ def test_cleanup_old_events_removes_events_older_than_30_days(db):
     conn.close()
 
     assert count == 0
+
+
+class TestDeleteUser:
+    def test_deletes_user_events_and_parameters(self, db):
+        add_user(telegram_id=1, username="liza", first_name="Liza", last_name="S")
+        add_event(telegram_id=1, event_type="start")
+        set_user_parameter(1, "current_step", "cinemalogy_start")
+
+        assert delete_user(1) is True
+
+        assert get_user(1) is None
+        assert get_user_parameter(1, "current_step") is None
+
+        conn = sqlite3.connect(db.DB_PATH)
+        count = conn.execute(
+            "SELECT COUNT(*) FROM user_events WHERE telegram_id = ?", (1,)
+        ).fetchone()[0]
+        conn.close()
+        assert count == 0
+
+    def test_does_not_touch_other_users(self, db):
+        add_user(telegram_id=1, username="liza", first_name="Liza", last_name="S")
+        add_user(telegram_id=2, username="other", first_name="Other", last_name=None)
+        set_user_parameter(2, "current_step", "keep_me")
+
+        delete_user(1)
+
+        assert get_user(2) is not None
+        assert get_user_parameter(2, "current_step") == "keep_me"
+
+    def test_missing_user_returns_false(self, db):
+        assert delete_user(999) is False
 
 
 class TestUserParameters:
