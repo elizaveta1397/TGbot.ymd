@@ -1,8 +1,10 @@
 # handlers/start.py
 
+import os
+
 from aiogram import Router, F
-from aiogram.filters import CommandStart, CommandObject
-from aiogram.types import Message
+from aiogram.filters import CommandStart, CommandObject, Command
+from aiogram.types import Message, CallbackQuery, FSInputFile
 
 from bot_services.database import (
     get_user,
@@ -12,9 +14,59 @@ from bot_services.database import (
 from bot_services.user_parameters import set_parameter
 
 from keyboards.main_menu import main_menu
+from keyboards.consent import consent_keyboard
 from bot_services.admin_notifications import notify_new_user
 
 router = Router()
+
+POLICY_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "docs",
+    "PRIVACY_POLICY.md"
+)
+
+CONSENT_TEXT = (
+    "Прежде чем продолжить — пара слов про персональные данные.\n\n"
+    "Чтобы бот работал (регистрация, аналитика, запись на консультацию "
+    "и на Синемалогию), ему нужно хранить ваш Telegram ID, username, "
+    "имя/фамилию и действия в диалоге. Полный текст — по кнопке "
+    "«Читать политику» ниже или в любой момент командой /policy.\n\n"
+    "Нажимая «Согласен(на)», вы подтверждаете, что ознакомились с "
+    "Политикой обработки персональных данных, и даёте согласие на "
+    "обработку своих персональных данных на условиях, описанных в ней. "
+    "Без согласия бот не сможет вас зарегистрировать и продолжить работу."
+)
+
+# Источник (/start payload) нового пользователя, пока он не нажал
+# «Согласен(на)» — держим в памяти процесса, не в БД: до согласия
+# ничего, кроме уже неизбежного (Telegram и так передаёт боту
+# telegram_id/username вместе с самим сообщением), не сохраняем.
+# Теряется при перезапуске бота — некритично, source в этом случае
+# просто останется пустым при последующей регистрации.
+_pending_sources: dict[int, str | None] = {}
+
+
+async def _send_policy(target: Message):
+    await target.answer_document(
+        FSInputFile(
+            POLICY_PATH,
+            filename="Политика обработки персональных данных.md"
+        )
+    )
+
+
+# ============================
+# /policy — доступна всем, без регистрации и без согласия
+# ============================
+@router.message(Command("policy"))
+async def policy_command(message: Message):
+    await _send_policy(message)
+
+
+@router.callback_query(F.data == "policy_view")
+async def policy_view(callback: CallbackQuery):
+    await _send_policy(callback.message)
+    await callback.answer()
 
 
 # ============================
@@ -31,28 +83,22 @@ async def start_handler(
     # deep link (/start payload)
     source = command.args
 
-    # ----------------------------
-    # NEW-USER REGISTRATION
-    # (до любых веток ниже — раньше стояло после CINEMALOGY ROUTING,
-    # и вход по cinemalogy-ссылке эту регистрацию вообще пропускал:
-    # ни строки в users, ни уведомления админу)
-    # ----------------------------
     user = get_user(telegram_user.id)
 
+    # ----------------------------
+    # НОВЫЙ ПОЛЬЗОВАТЕЛЬ — сперва согласие на обработку ПДн (152-ФЗ),
+    # регистрация (add_user) откладывается до нажатия «Согласен(на)»
+    # в consent_accept ниже. Существующего пользователя эта ветка не
+    # трогает — обычный /start ниже, как раньше.
+    # ----------------------------
     if user is None:
-        add_user(
-            telegram_id=telegram_user.id,
-            username=telegram_user.username,
-            first_name=telegram_user.first_name,
-            last_name=telegram_user.last_name,
-            source=source
-        )
+        _pending_sources[telegram_user.id] = source
 
-        await notify_new_user(
-            message.bot,
-            telegram_user,
-            source
+        await message.answer(
+            CONSENT_TEXT,
+            reply_markup=consent_keyboard()
         )
+        return
 
     # ----------------------------
     # CINEMALOGY ROUTING
@@ -69,20 +115,75 @@ async def start_handler(
     # ----------------------------
     # USER LOGIC (обычный /start уже существующего пользователя)
     # ----------------------------
-    if user is not None:
-        # update_last_activity сюда не добавляем — ActivityMiddleware
-        # уже обновил её перед этим хендлером для любого сообщения
-        # существующего пользователя, повторный вызов был бы дублем.
-        add_event(
-            telegram_user.id,
-            "start",
-            source
-        )
+    # update_last_activity сюда не добавляем — ActivityMiddleware уже
+    # обновил её перед этим хендлером для любого сообщения
+    # существующего пользователя, повторный вызов был бы дублем.
+    add_event(
+        telegram_user.id,
+        "start",
+        source
+    )
 
     # ----------------------------
     # DEFAULT RESPONSE
     # ----------------------------
     await message.answer(
+        "Добро пожаловать",
+        reply_markup=main_menu
+    )
+
+
+# ============================
+# СОГЛАСИЕ НА ОБРАБОТКУ ПДн — регистрация нового пользователя
+# ============================
+@router.callback_query(F.data == "consent_accept")
+async def consent_accept(callback: CallbackQuery):
+
+    telegram_user = callback.from_user
+    source = _pending_sources.pop(telegram_user.id, None)
+
+    add_user(
+        telegram_id=telegram_user.id,
+        username=telegram_user.username,
+        first_name=telegram_user.first_name,
+        last_name=telegram_user.last_name,
+        source=source
+    )
+
+    # Факт согласия — в аналитику, отдельным событием (не раньше: до
+    # этой строки пользователь ещё не подтвердил согласие).
+    add_event(
+        telegram_user.id,
+        "consent_given",
+        "privacy_policy_v1"
+    )
+
+    await notify_new_user(
+        callback.bot,
+        telegram_user,
+        source
+    )
+
+    try:
+        await callback.message.delete()
+    except Exception:
+        pass
+
+    await callback.answer()
+
+    if source and source.startswith("cinemalogy"):
+        from handlers.cinemalogy.start import start_cinemalogy
+
+        # telegram_id — явно: callback.message тут сообщение бота
+        # (экран согласия), а не пользователя.
+        await start_cinemalogy(
+            message=callback.message,
+            source=source,
+            telegram_id=telegram_user.id
+        )
+        return
+
+    await callback.message.answer(
         "Добро пожаловать",
         reply_markup=main_menu
     )

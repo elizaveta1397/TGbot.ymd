@@ -41,6 +41,7 @@ def fake_message(fake_user):
     message.answer = AsyncMock()
     message.answer_photo = AsyncMock()
     message.answer_animation = AsyncMock()
+    message.answer_document = AsyncMock()
     message.delete = AsyncMock()
     message.edit_media = AsyncMock()
 
