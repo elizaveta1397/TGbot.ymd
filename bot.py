@@ -19,9 +19,19 @@ from handlers.start import router as start_router
 from config import BOT_TOKEN
 
 from middlewares.activity import ActivityMiddleware
+from middlewares.consent_gate import ConsentGateMiddleware
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
+
+# ConsentGate — раньше ActivityMiddleware: блокировать несогласившихся
+# нужно до того, как что-либо ещё их сообщение обработает.
+dp.message.middleware(
+    ConsentGateMiddleware()
+)
+dp.callback_query.middleware(
+    ConsentGateMiddleware()
+)
 
 dp.message.middleware(
     ActivityMiddleware()
