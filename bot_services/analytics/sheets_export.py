@@ -46,11 +46,22 @@ def build_export_data():
     for row in funnel.daily_active_users():
         dau_sheet.append([row["date"], row["unique_users"]])
 
+    engagement_sheet = [
+        ["Событие", "Уникальных пользователей", "Всего срабатываний"]
+    ]
+    for row in funnel.other_engagement_counts():
+        engagement_sheet.append([
+            row["event_type"],
+            row["unique_users"],
+            row["total_events"],
+        ])
+
     return {
         "Воронка": funnel_sheet,
         "Источники": sources_sheet,
         "Продажи": sales_sheet,
         "Активность по дням": dau_sheet,
+        "Вовлечённость": engagement_sheet,
     }
 
 

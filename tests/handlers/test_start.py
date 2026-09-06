@@ -2,6 +2,7 @@
 handlers/start.py — точка входа /start и кнопки главного меню.
 """
 
+import sqlite3
 from types import SimpleNamespace
 
 from bot_services.database import add_user
@@ -15,6 +16,18 @@ from handlers.start import (
 
 def _command(args=None):
     return SimpleNamespace(args=args)
+
+
+def _event_types(db, telegram_id):
+    conn = sqlite3.connect(db.DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT event_type FROM user_events WHERE telegram_id = ?",
+        (telegram_id,),
+    )
+    rows = [row[0] for row in cursor.fetchall()]
+    conn.close()
+    return rows
 
 
 async def test_start_handler_registers_new_user_and_notifies_admin(
@@ -74,11 +87,37 @@ async def test_about_me_button_sends_link(db, fake_message):
     assert "telegra.ph" in fake_message.answer.await_args.args[0]
 
 
+async def test_about_me_button_logs_analytics_and_current_step(db, fake_message):
+    from bot_services.user_parameters import get_parameter
+
+    telegram_id = fake_message.from_user.id
+
+    await about_me(fake_message)
+
+    assert get_parameter(telegram_id, "current_step") == "menu_about_me"
+
+    events = _event_types(db, telegram_id)
+    assert events == ["menu_about_me"]
+
+
 async def test_lullabies_button_sends_link(db, fake_message):
     await lullabies(fake_message)
 
     fake_message.answer.assert_awaited_once()
     assert "t.me" in fake_message.answer.await_args.args[0]
+
+
+async def test_lullabies_button_logs_analytics_and_current_step(db, fake_message):
+    from bot_services.user_parameters import get_parameter
+
+    telegram_id = fake_message.from_user.id
+
+    await lullabies(fake_message)
+
+    assert get_parameter(telegram_id, "current_step") == "menu_lullabies"
+
+    events = _event_types(db, telegram_id)
+    assert events == ["menu_lullabies"]
 
 
 async def test_cinemalogy_menu_button_opens_cinemalogy(db, fake_message):

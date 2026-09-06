@@ -6,6 +6,8 @@ from aiogram import Bot
 
 from keyboards.consultation_keyboard import consultation_keyboard
 from bot_services.admin_notifications import notify_admin_consultation_request
+from bot_services.database import add_event
+from bot_services.user_parameters import set_parameter
 
 router = Router()
 
@@ -15,6 +17,21 @@ async def send_consultation_waitlist(
     user: User,
     bot: Bot
 ):
+    """
+    Общая точка для обоих входов в запись на консультацию — кнопка
+    главного меню (handlers/start.py::sign_up) и инлайн-кнопка
+    "consultation_start" со стартового экрана Cinemalogy
+    (consultation_start ниже). Аналитика и current_step пишутся тут
+    один раз — покрывают оба входа.
+    """
+
+    set_parameter(user.id, "current_step", "consultation_waitlist")
+
+    add_event(
+        user.id,
+        "consultation_request",
+        None
+    )
 
     text = (
         "К сожалению, на данный момент окна для записи в личную терапию "

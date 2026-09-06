@@ -77,6 +77,28 @@ def test_sales_by_tariff_counts_only_payment_done_events(db):
     assert rows == {"mini": 2, "maxi": 1}
 
 
+def test_other_engagement_counts_covers_all_known_events_in_order(db):
+    event_types = [row["event_type"] for row in funnel.other_engagement_counts()]
+    assert event_types == funnel.OTHER_ENGAGEMENT_EVENTS
+
+
+def test_other_engagement_counts_counts_unique_and_total(db):
+    add_event(1, "menu_about_me")
+    add_event(1, "menu_about_me")  # тот же юзер дважды — не задвоить unique, но total считает оба
+    add_event(2, "menu_about_me")
+    add_event(1, "consultation_request")
+
+    rows = {
+        row["event_type"]: row
+        for row in funnel.other_engagement_counts()
+    }
+
+    assert rows["menu_about_me"]["unique_users"] == 2
+    assert rows["menu_about_me"]["total_events"] == 3
+    assert rows["consultation_request"]["unique_users"] == 1
+    assert rows["menu_lullabies"]["unique_users"] == 0
+
+
 def test_daily_active_users_groups_by_day_without_duplicates(db):
     conn = sqlite3.connect(db.DB_PATH)
     conn.executemany(

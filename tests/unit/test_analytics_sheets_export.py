@@ -23,6 +23,7 @@ def test_build_export_data_has_all_expected_sheets_with_headers(db):
         "Источники",
         "Продажи",
         "Активность по дням",
+        "Вовлечённость",
     }
     assert data["Воронка"][0] == [
         "Шаг",
@@ -31,6 +32,16 @@ def test_build_export_data_has_all_expected_sheets_with_headers(db):
     ]
     # +1 заголовок + 8 шагов воронки
     assert len(data["Воронка"]) == 1 + len(sheets_export.funnel.FUNNEL_STEPS)
+
+    assert data["Вовлечённость"][0] == [
+        "Событие",
+        "Уникальных пользователей",
+        "Всего срабатываний",
+    ]
+    # +1 заголовок + все не-воронка события
+    assert len(data["Вовлечённость"]) == (
+        1 + len(sheets_export.funnel.OTHER_ENGAGEMENT_EVENTS)
+    )
 
 
 class FakeWorksheet:

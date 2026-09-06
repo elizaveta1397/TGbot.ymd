@@ -9,6 +9,7 @@ from bot_services.database import (
     add_user,
     add_event
 )
+from bot_services.user_parameters import set_parameter
 
 from keyboards.main_menu import main_menu
 from bot_services.admin_notifications import notify_new_user
@@ -107,6 +108,11 @@ async def get_gif_id(message: Message):
 # Обо мне → новая ссылка
 @router.message(F.text == "Обо мне")
 async def about_me(message: Message):
+    telegram_id = message.from_user.id
+
+    set_parameter(telegram_id, "current_step", "menu_about_me")
+    add_event(telegram_id, "menu_about_me", None)
+
     await message.answer(
         "Обо мне:\nhttps://telegra.ph/Obo-mne-07-14-13"
     )
@@ -127,6 +133,11 @@ async def sign_up(message: Message):
 # 12 взрослых колыбельных → ссылка
 @router.message(F.text == "12 взрослых колыбельных")
 async def lullabies(message: Message):
+    telegram_id = message.from_user.id
+
+    set_parameter(telegram_id, "current_step", "menu_lullabies")
+    add_event(telegram_id, "menu_lullabies", None)
+
     await message.answer(
         "12 взрослых колыбельных:\nhttps://t.me/your_mental_doc/131"
     )

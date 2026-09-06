@@ -131,6 +131,48 @@ def sales_by_tariff():
     return rows
 
 
+
+# Не воронка (нет строгого порядка/единого предыдущего шага) — просто
+# "сколько раз нажали"/"сколько раз попросили" вне Cinemalogy.
+# Имена — те же, что передаются в add_event() по коду.
+OTHER_ENGAGEMENT_EVENTS = [
+    "menu_about_me",
+    "menu_lullabies",
+    "consultation_request",
+]
+
+
+def other_engagement_counts():
+    """
+    Уникальных пользователей и общее число срабатываний для процессов
+    вне воронки Cinemalogy — кнопки главного меню, запись на
+    консультацию (оба входа в неё, см. handlers/consultation.py).
+    """
+
+    conn = _connect()
+    cursor = conn.cursor()
+
+    rows = []
+    for event_type in OTHER_ENGAGEMENT_EVENTS:
+        cursor.execute(
+            """
+            SELECT COUNT(DISTINCT telegram_id), COUNT(*)
+            FROM user_events
+            WHERE event_type = ?
+            """,
+            (event_type,),
+        )
+        unique_users, total = cursor.fetchone()
+        rows.append({
+            "event_type": event_type,
+            "unique_users": unique_users,
+            "total_events": total,
+        })
+
+    conn.close()
+    return rows
+
+
 def daily_active_users():
     """
     Уникальных пользователей по дням — по любому событию в
