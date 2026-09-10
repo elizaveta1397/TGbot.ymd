@@ -9,6 +9,7 @@ from types import SimpleNamespace
 import pytest
 
 from bot_services.database import add_user
+from config import PRIVACY_POLICY_URL
 from handlers.start import (
     _pending_sources,
     about_me,
@@ -17,9 +18,10 @@ from handlers.start import (
     delete_me_cancel,
     delete_me_command,
     delete_me_confirm,
+    legal_delete_me,
+    legal_info,
     lullabies,
     policy_command,
-    policy_view,
     start_handler,
 )
 
@@ -148,17 +150,14 @@ async def test_consent_accept_routes_to_cinemalogy_for_new_user(
     ) == "cinemalogy_start"
 
 
-async def test_policy_command_sends_document(fake_message):
+async def test_policy_command_sends_link(fake_message):
     await policy_command(fake_message)
 
-    fake_message.answer_document.assert_awaited_once()
-
-
-async def test_policy_view_callback_sends_document(fake_callback):
-    await policy_view(fake_callback)
-
-    fake_callback.message.answer_document.assert_awaited_once()
-    fake_callback.answer.assert_awaited_once()
+    fake_message.answer.assert_awaited_once()
+    args, kwargs = fake_message.answer.await_args
+    assert kwargs["reply_markup"] is not None
+    button = kwargs["reply_markup"].inline_keyboard[0][0]
+    assert button.url == PRIVACY_POLICY_URL
 
 
 async def test_delete_me_command_without_data_says_nothing_to_delete(
@@ -265,3 +264,52 @@ async def test_cinemalogy_menu_button_opens_cinemalogy(db, fake_message):
     await cinemalogy_start(fake_message)
 
     fake_message.answer_photo.assert_awaited_once()
+
+
+async def test_legal_info_button_shows_menu(db, fake_message):
+    await legal_info(fake_message)
+
+    fake_message.answer.assert_awaited_once()
+    args, kwargs = fake_message.answer.await_args
+    assert "Правовая информация" in args[0]
+    assert kwargs["reply_markup"] is not None
+
+
+async def test_legal_info_button_logs_analytics_and_current_step(db, fake_message):
+    from bot_services.user_parameters import get_parameter
+
+    telegram_id = fake_message.from_user.id
+
+    await legal_info(fake_message)
+
+    assert get_parameter(telegram_id, "current_step") == "menu_legal_info"
+
+    events = _event_types(db, telegram_id)
+    assert events == ["menu_legal_info"]
+
+
+async def test_legal_delete_me_without_data_says_nothing_to_delete(
+    db, fake_callback
+):
+    await legal_delete_me(fake_callback)
+
+    fake_callback.message.answer.assert_awaited_once()
+    assert "не нашли" in fake_callback.message.answer.await_args.args[0]
+    fake_callback.answer.assert_awaited_once()
+
+
+async def test_legal_delete_me_with_data_asks_confirmation(db, fake_callback):
+    add_user(
+        telegram_id=fake_callback.from_user.id,
+        username="testuser",
+        first_name="Test",
+        last_name=None,
+    )
+
+    await legal_delete_me(fake_callback)
+
+    fake_callback.message.answer.assert_awaited_once()
+    args, kwargs = fake_callback.message.answer.await_args
+    assert "необратимо" in args[0]
+    assert kwargs["reply_markup"] is not None
+    fake_callback.answer.assert_awaited_once()

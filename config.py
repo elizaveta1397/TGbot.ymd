@@ -23,3 +23,13 @@ CARE_TEAM_CHAT_ID = int(os.getenv("CARE_TEAM_CHAT_ID", "8673829586"))
 # ошибкой, сам бот эти переменные не читает вообще.
 ANALYTICS_SPREADSHEET_ID = os.getenv("ANALYTICS_SPREADSHEET_ID")
 GOOGLE_SHEETS_CREDENTIALS_PATH = os.getenv("GOOGLE_SHEETS_CREDENTIALS_PATH")
+
+# Политика обработки ПДн — открывается пользователю как веб-страница
+# по ссылке, а не документом в чат (см. handlers/start.py, п.10/12
+# docs/IDEAS.md). Публикуется/обновляется через
+# scripts/publish_privacy_policy.py — не секрет, поэтому прямо в коде,
+# а не в .env; сам access_token для редактирования страницы — в .env
+# (TELEGRAPH_ACCESS_TOKEN), в git не попадает.
+PRIVACY_POLICY_URL = (
+    "https://telegra.ph/Politika-obrabotki-personalnyh-dannyh-09-10-3"
+)

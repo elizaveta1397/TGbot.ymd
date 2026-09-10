@@ -1,5 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
+from config import PRIVACY_POLICY_URL
+
 
 def consent_keyboard() -> InlineKeyboardMarkup:
     """
@@ -12,12 +14,12 @@ def consent_keyboard() -> InlineKeyboardMarkup:
             [
                 InlineKeyboardButton(
                     text="📄 Читать политику",
-                    callback_data="policy_view"
+                    url=PRIVACY_POLICY_URL
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text="✅ Согласен(на) на обработку персональных данных",
+                    text="✅ Даю согласие на обработку персональных данных",
                     callback_data="consent_accept"
                 )
             ]

@@ -1,7 +1,7 @@
 """
 middlewares/consent_gate.py — блокирует любое действие в боте для
 пользователя, у которого нет строки в users (ещё не нажал
-«Согласен(на)» на экране согласия). См. docs/IDEAS.md, п.1.
+«Даю согласие» на экране согласия). См. docs/IDEAS.md, п.1.
 """
 
 from types import SimpleNamespace
@@ -76,13 +76,6 @@ async def test_policy_command_always_allowed(db):
 
 async def test_consent_accept_callback_always_allowed(db):
     event = fake_event(data="consent_accept", has_text_attr=False)
-    handler, result = await call_middleware(event)
-
-    handler.assert_awaited_once_with(event, {})
-
-
-async def test_policy_view_callback_always_allowed(db):
-    event = fake_event(data="policy_view", has_text_attr=False)
     handler, result = await call_middleware(event)
 
     handler.assert_awaited_once_with(event, {})
