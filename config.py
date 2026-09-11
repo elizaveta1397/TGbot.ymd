@@ -26,10 +26,15 @@ GOOGLE_SHEETS_CREDENTIALS_PATH = os.getenv("GOOGLE_SHEETS_CREDENTIALS_PATH")
 
 # Политика обработки ПДн — открывается пользователю как веб-страница
 # по ссылке, а не документом в чат (см. handlers/start.py, п.10/12
-# docs/IDEAS.md). Публикуется/обновляется через
-# scripts/publish_privacy_policy.py — не секрет, поэтому прямо в коде,
-# а не в .env; сам access_token для редактирования страницы — в .env
-# (TELEGRAPH_ACCESS_TOKEN), в git не попадает.
-PRIVACY_POLICY_URL = (
-    "https://telegra.ph/Politika-obrabotki-personalnyh-dannyh-09-10-3"
-)
+# docs/IDEAS.md). Не секрет, поэтому прямо в коде, а не в .env.
+#
+# 2026-09-11, по прямому решению Лизы (после явного предупреждения
+# о риске): здесь текст v2 («бот не собирает и не хранит персональные
+# данные») ещё ДО того, как код полностью приведён в соответствие
+# (activity.py всё ещё логирует текст сообщений, add_user() пишет
+# username/имя — выгрузка листа "Пользователи" в Google Sheets уже
+# убрана, см. sheets_export.py) и ДО подтверждения юристом — см.
+# docs/IDEAS.md, п.1.7/1.8/1.9. Хостинг — teletype.in, не telegra.ph
+# (publish_privacy_policy.py его не обновляет, правки — вручную на
+# teletype.in).
+PRIVACY_POLICY_URL = "https://teletype.in/@your.mental.doc/privacy_policy"

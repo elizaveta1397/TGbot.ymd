@@ -94,17 +94,18 @@ def run_export(spreadsheet_id, credentials_path):
     """
     Точка входа для cron (см. scripts/export_analytics.py): открывает
     таблицу через service account и заливает в неё свежие агрегаты.
+
+    До 2026-09-11 сюда же входила выгрузка листа "Пользователи"
+    (username/имя/Telegram ID через bot_services.analytics.users_export)
+    — убрана по решению Лизы вслед за политикой v2 ("бот не собирает и
+    не хранит персональные данные", см. docs/IDEAS.md п.1.9): лист
+    больше не пополняется, старые строки в самой Google-таблице никто
+    не трогал.
     """
 
     import gspread
-
-    from bot_services.analytics.users_export import sync_users_sheet
 
     gc = gspread.service_account(filename=credentials_path)
     spreadsheet = gc.open_by_key(spreadsheet_id)
 
     write_to_sheets(spreadsheet, build_export_data())
-
-    # "Пользователи" — единственный лист, который не перезаписывается
-    # целиком (см. users_export.py: там ручные "Комментарий").
-    sync_users_sheet(spreadsheet)

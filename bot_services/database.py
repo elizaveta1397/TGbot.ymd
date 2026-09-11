@@ -95,8 +95,10 @@ def get_user(telegram_id):
 
 def get_all_users():
     """
-    Все пользователи, старые сначала — для выгрузки на лист
-    "Пользователи" в Google Sheets (bot_services/analytics/users_export.py).
+    Все пользователи, старые сначала. Раньше использовалась только для
+    выгрузки на лист "Пользователи" в Google Sheets — этот экспорт
+    убран 2026-09-11 (см. sheets_export.py), сейчас не вызывается
+    нигде за пределами тестов.
     """
 
     conn = sqlite3.connect(DB_PATH)
