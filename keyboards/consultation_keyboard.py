@@ -10,7 +10,7 @@ def consultation_keyboard():
             [
                 InlineKeyboardButton(
                     text="Записаться в лист ожидания",
-                    url="https://docs.google.com/forms/d/e/1FAIpQLSeTHGnQV6W4QOO7Q4pBhG722J1nj3oN5RorFTLJXnHKoGycYg/viewform?usp=send_form"
+                    url="https://t.me/goncharova_help"
                 )
             ]
         ]
